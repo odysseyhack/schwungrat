@@ -1,39 +1,64 @@
 <template>
-    <div>
-        <h1 class="title">Register</h1>
+  <div>
+    <h1 class="title">
+      Register
+    </h1>
 
-        <div class="row">
-            <div class="col-md-3">
-
-                <div class="form-group">
-                    <label for="description">Name</label>
-                    <input class="form-control" placeholder="Enter your name" type="text" v-model="userName">
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Status</label>
-                    <input class="form-control" placeholder="Enter your status" type="text" v-model="userStatus">
-                </div>
-
-                <button class="btn btn-primary" :disabled="disableSubmit" @click="performSubmit">Register</button>
-                <strong v-show="submitting">Submitting...</strong>
-
-                <strong  class="text-danger"></strong>
-
-                <div v-show="errorStr" class="alert alert-danger mt-3" role="alert">
-                    {{ errorStr }}
-                    <br>
-                    <small>Check the browser console for more details.</small>
-                </div>
-
-                <div v-show="successMessage" class="alert alert-success mt-3" role="alert">
-                    <strong>You've been registerd!</strong>
-                    <br>
-                    You will be redirected to the profile page <strong>once the block will be mined!</strong>
-                </div>
-            </div>
+    <div class="row">
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="description">Name</label>
+          <input
+            v-model="userName"
+            class="form-control"
+            placeholder="Enter your name"
+            type="text"
+          >
         </div>
+
+        <div class="form-group">
+          <label for="description">Status</label>
+          <input
+            v-model="userStatus"
+            class="form-control"
+            placeholder="Enter your status"
+            type="text"
+          >
+        </div>
+
+        <button
+          class="btn btn-primary"
+          :disabled="disableSubmit"
+          @click="performSubmit"
+        >
+          Register
+        </button>
+        <strong v-show="submitting">Submitting...</strong>
+
+        <strong class="text-danger" />
+
+        <div
+          v-show="errorStr"
+          class="alert alert-danger mt-3"
+          role="alert"
+        >
+          {{ errorStr }}
+          <br>
+          <small>Check the browser console for more details.</small>
+        </div>
+
+        <div
+          v-show="successMessage"
+          class="alert alert-success mt-3"
+          role="alert"
+        >
+          <strong>You've been registerd!</strong>
+          <br>
+          You will be redirected to the profile page <strong>once the block will be mined!</strong>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>

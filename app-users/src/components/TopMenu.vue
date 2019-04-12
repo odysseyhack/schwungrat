@@ -1,26 +1,43 @@
 <template>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <ul class="navbar-nav">
-            <router-link tag="li" class="nav-link" to="/" exact>
-                <a>Statuses</a>
-            </router-link>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <ul class="navbar-nav">
+      <router-link
+        tag="li"
+        class="nav-link"
+        to="/"
+        exact
+      >
+        <a>Statuses</a>
+      </router-link>
 
-            <router-link tag="li" class="nav-link" to="/profile" exact v-show="userIsRegistered">
-                <a>Profile</a>
-            </router-link>
+      <router-link
+        v-show="userIsRegistered"
+        tag="li"
+        class="nav-link"
+        to="/profile"
+        exact
+      >
+        <a>Profile</a>
+      </router-link>
 
-            <router-link tag="li" class="nav-link" to="/register" exact v-show="!userIsRegistered">
-                <a><strong>Register</strong></a>
-            </router-link>
+      <router-link
+        v-show="!userIsRegistered"
+        tag="li"
+        class="nav-link"
+        to="/register"
+        exact
+      >
+        <a><strong>Register</strong></a>
+      </router-link>
 
-            <li class="nav-link"></li>
-            <li class="nav-link">
-                <strong :class="connectedClass">
-                    {{ bcConnected ? 'Connected' : 'Not Connected' }}
-                </strong>
-            </li>
-        </ul>
-    </nav>
+      <li class="nav-link" />
+      <li class="nav-link">
+        <strong :class="connectedClass">
+          {{ bcConnected ? 'Connected' : 'Not Connected' }}
+        </strong>
+      </li>
+    </ul>
+  </nav>
 </template>
 
 <script>
@@ -37,6 +54,14 @@
                 connectedClass: 'text-danger', // bootstrap class for the connection status (red when not connected, green when connected)
                 userIsRegistered: false, // true when the user that is visiting the page is registered
             }
+        },
+
+        created() {
+            // when the event userregistered is fired (from the view Register.vue)
+            // it runs the function checkUntilUserIsRegistered
+            Event.$on('userregistered', this.checkUntilUserIsRegistered)
+
+            this.checkUserIsRegistered()
         },
 
         methods: {
@@ -91,14 +116,6 @@
                     }
                 }, 1000)
             }
-        },
-
-        created() {
-            // when the event userregistered is fired (from the view Register.vue)
-            // it runs the function checkUntilUserIsRegistered
-            Event.$on('userregistered', this.checkUntilUserIsRegistered)
-
-            this.checkUserIsRegistered()
         }
     }
 </script>

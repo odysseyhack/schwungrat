@@ -1,52 +1,78 @@
 <template>
-    <div>
-        <h1 class="title">Profile</h1>
+  <div>
+    <h1 class="title">
+      Profile
+    </h1>
 
-        <div class="row">
-            <div class="col-md-3">
-                <h3>Update your Profile</h3><hr>
+    <div class="row">
+      <div class="col-md-3">
+        <h3>Update your Profile</h3><hr>
 
-                <h4>
-                    Your ID: {{ userId }}
-                </h4>
+        <h4>
+          Your ID: {{ userId }}
+        </h4>
 
-                <div class="form-group">
-                    <label for="description">Name</label>
-                    <input class="form-control" placeholder="Enter your name" type="text" v-model="userName">
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Status</label>
-                    <input class="form-control" placeholder="Update your status" type="text" v-model="userStatus">
-                </div>
-
-                <button class="btn btn-primary" :disabled="disableSubmit" @click="performSubmit">Save</button>
-
-                <strong v-show="submitting" class="ml-2">Submitting...</strong>
-                <strong v-show="successSave" class="ml-2 text-success">Tx submitted!</strong>
-            </div>
-
-            <div class="col-md-3">
-                <h3>Info</h3><hr>
-
-                <p>
-                    <strong>Address</strong>: {{ userAddressAccount }}
-                </p>
-                <p>
-                    <strong>Balance</strong>: {{ balance }} ETH
-                </p>
-            </div>
+        <div class="form-group">
+          <label for="description">Name</label>
+          <input
+            v-model="userName"
+            class="form-control"
+            placeholder="Enter your name"
+            type="text"
+          >
         </div>
 
-        <div class="row" v-show="errorMessage">
-            <div class="col-md-6">
-                <div class="alert alert-danger mt-4">
-                    {{ errorMessage }}
-                </div>
-            </div>
+        <div class="form-group">
+          <label for="description">Status</label>
+          <input
+            v-model="userStatus"
+            class="form-control"
+            placeholder="Update your status"
+            type="text"
+          >
         </div>
 
+        <button
+          class="btn btn-primary"
+          :disabled="disableSubmit"
+          @click="performSubmit"
+        >
+          Save
+        </button>
+
+        <strong
+          v-show="submitting"
+          class="ml-2"
+        >Submitting...</strong>
+        <strong
+          v-show="successSave"
+          class="ml-2 text-success"
+        >Tx submitted!</strong>
+      </div>
+
+      <div class="col-md-3">
+        <h3>Info</h3><hr>
+
+        <p>
+          <strong>Address</strong>: {{ userAddressAccount }}
+        </p>
+        <p>
+          <strong>Balance</strong>: {{ balance }} ETH
+        </p>
+      </div>
     </div>
+
+    <div
+      v-show="errorMessage"
+      class="row"
+    >
+      <div class="col-md-6">
+        <div class="alert alert-danger mt-4">
+          {{ errorMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -93,6 +119,14 @@
                     !this.blockchainIsConnected()
                 )
             }
+        },
+
+        created() {
+            // it will call the function checkConnectionAndLoad every 500ms
+            // until the connection to the blockchain is enstablished
+            this.tmoConn = setInterval(() => {
+                this.checkConnectionAndLoad()
+            }, 500)
         },
 
         methods: {
@@ -235,14 +269,6 @@
                         this.$router.push("register")
                     })
             }
-        },
-
-        created() {
-            // it will call the function checkConnectionAndLoad every 500ms
-            // until the connection to the blockchain is enstablished
-            this.tmoConn = setInterval(() => {
-                this.checkConnectionAndLoad()
-            }, 500)
         }
     }
 </script>
