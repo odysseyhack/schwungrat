@@ -1,7 +1,4 @@
-# Ethereum and VueJS dApp
-
-> **Ethereum** and **VueJS** dApp for managing user status on the **blockchain**. For more info please visit:
-https://www.danielefavi.com/create-your-blockchain-dapp-with-ethereum-and-vuejs/
+# VueJS App that communicates with smart contracts
 
 ## Build Setup
 
