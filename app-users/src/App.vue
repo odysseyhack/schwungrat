@@ -35,15 +35,15 @@
 
 <script>
 // importing common function
-import mixin from './libs/mixinViews';
-import TopMenu from './components/TopMenu';
+    import mixin from './libs/mixinViews'
+    import TopMenu from './components/TopMenu'
 
-export default {
-    components: { TopMenu },
-    mixins: [mixin],
+    export default {
+        components: { TopMenu },
+        mixins: [mixin],
 
-    name: 'App'
-};
+        name: 'App'
+    }
 </script>
 
 <style>

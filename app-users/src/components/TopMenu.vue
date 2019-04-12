@@ -25,7 +25,7 @@
 
 <script>
     // importing common function
-    import mixin from '../libs/mixinViews';
+    import mixin from '../libs/mixinViews'
 
     export default {
         mixins: [mixin],
@@ -49,16 +49,16 @@
                     // checking first if the connection with the blockchain is established
                     if (this.blockchainIsConnected()) {
                         // stopping the setInterval
-                        clearInterval(this.tmoConn);
+                        clearInterval(this.tmoConn)
 
                         // showing the connected message on the top bar and setting the class too
-                        this.connectedClass = 'text-success';
+                        this.connectedClass = 'text-success'
 
                         this.isRegistered()
-                        .then(res => this.userIsRegistered = res)
-                        .catch(error => console.log(error));
+                            .then(res => this.userIsRegistered = res)
+                            .catch(error => console.log(error))
                     }
-                }, 500);
+                }, 500)
             },
 
             /**
@@ -78,26 +78,26 @@
                 this.tmoReg = setInterval(() => {
                     if (this.blockchainIsConnected()) {
                         this.isRegistered()
-                        .then((error, res) => {
-                            if (res) {
-                                // stopping the setInterval
-                                clearInterval(this.tmoReg);
+                            .then((error, res) => {
+                                if (res) {
+                                    // stopping the setInterval
+                                    clearInterval(this.tmoReg)
 
-                                this.userIsRegistered = res;
-                            }
-                        })
-                        .catch(error => console.log(error))
+                                    this.userIsRegistered = res
+                                }
+                            })
+                            .catch(error => console.log(error))
                     }
-                }, 1000);
+                }, 1000)
             }
         },
 
         created() {
             // when the event userregistered is fired (from the view Register.vue)
             // it runs the function checkUntilUserIsRegistered
-            Event.$on('userregistered', this.checkUntilUserIsRegistered);
+            Event.$on('userregistered', this.checkUntilUserIsRegistered)
 
-            this.checkUserIsRegistered();
+            this.checkUserIsRegistered()
         }
     }
 </script>

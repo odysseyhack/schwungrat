@@ -51,7 +51,7 @@
 
 <script>
     // importing common function
-    import mixin from '../libs/mixinViews';
+    import mixin from '../libs/mixinViews'
 
 
     /**
@@ -91,7 +91,7 @@
                     !this.userStatus.length ||
                     this.submitting ||
                     !this.blockchainIsConnected()
-                );
+                )
             }
         },
 
@@ -108,19 +108,20 @@
              */
             getProfile() {
                 window.bc.getMainAccount().then(account => {
-                    window.bc.contract().getOwnProfile.call({ from: account },
+                    window.bc.contract().getOwnProfile.call(
+                        { from: account },
                         (error, userDet) => {
                             if (userDet) {
-                                this.userId = userDet[0].toNumber();
-                                this.userName = userDet[1];
+                                this.userId = userDet[0].toNumber()
+                                this.userName = userDet[1]
                                 // userDet[2] is bytes32 format so it has to be trasformed to stirng
-                                this.userStatus = this.toAscii(userDet[2]);
+                                this.userStatus = this.toAscii(userDet[2])
                             }
 
-                            this.setErrorMessage(error);
+                            this.setErrorMessage(error)
                         }
-                    );
-                });
+                    )
+                })
             },
 
             /**
@@ -130,14 +131,14 @@
              * @return {void}
              */
             setErrorMessage(error) {
-                this.errorMessage = null;
+                this.errorMessage = null
 
                 if (error) {
-                    console.error(error);
+                    console.error(error)
 
-                    this.errorMessage = error.toString();
+                    this.errorMessage = error.toString()
 
-                    if (! this.errorMessage.length) this.errorMessage = 'Error occurred!';
+                    if (! this.errorMessage.length) this.errorMessage = 'Error occurred!'
                 }
             },
 
@@ -147,24 +148,24 @@
              * @return {void}
              */
             performSubmit() {
-                this.submitting = true;
-                this.errorMessage = null;
-                this.successSave = false;
+                this.submitting = true
+                this.errorMessage = null
+                this.successSave = false
 
                 // calling the method updateUser from the smart contract
                 window.bc.getMainAccount()
-                .then(account => {
-                    window.bc.contract().updateUser(
-                        this.userName,
-                        this.userStatus,
-                        {
-                            from: account,
-                            gas: 800000
-                        },
-                        (err, txHash) => this.handleSubmitResult(err, txHash)
-                    )
-                })
-                .catch(error => this.setErrorMessage(error));
+                    .then(account => {
+                        window.bc.contract().updateUser(
+                            this.userName,
+                            this.userStatus,
+                            {
+                                from: account,
+                                gas: 800000
+                            },
+                            (err, txHash) => this.handleSubmitResult(err, txHash)
+                        )
+                    })
+                    .catch(error => this.setErrorMessage(error))
             },
 
             /**
@@ -175,12 +176,12 @@
              * @return {void}
              */
             handleSubmitResult(error, txHash) {
-                this.submitting = false;
+                this.submitting = false
 
                 if (error) {
-                    this.setErrorMessage(error);
+                    this.setErrorMessage(error)
                 } else if (txHash) {
-                    this.successSave = true;
+                    this.successSave = true
                 }
             },
 
@@ -191,10 +192,10 @@
              */
             getInfoBc() {
                 window.bc.loadInfo().then(info => {
-                    this.userAddressAccount = info.mainAccount;
+                    this.userAddressAccount = info.mainAccount
 
-                    this.balance = window.bc.weiToEther( info.balance );
-                });
+                    this.balance = window.bc.weiToEther( info.balance )
+                })
             },
 
             /**
@@ -205,9 +206,9 @@
             checkConnectionAndLoad() {
                 if (this.blockchainIsConnected()) {
                     // stopping the interval
-                    clearInterval(this.tmoConn);
+                    clearInterval(this.tmoConn)
 
-                    this.loadEverything();
+                    this.loadEverything()
                 }
             },
 
@@ -219,20 +220,20 @@
             loadEverything() {
                 // checking if the user is registered
                 this.isRegistered()
-                .then(res => {
-                    // if the user is registered it will load the profile page
-                    if (res) {
-                        this.getProfile();
-                        this.getInfoBc();
-                    }
+                    .then(res => {
+                        // if the user is registered it will load the profile page
+                        if (res) {
+                            this.getProfile()
+                            this.getInfoBc()
+                        }
 
-                    // if the user not registered the user will be redirected to the Register page
-                    else this.$router.push("register");
-                })
-                .catch(error => {
-                    console.error(error);
-                    this.$router.push("register");
-                });
+                        // if the user not registered the user will be redirected to the Register page
+                        else this.$router.push("register")
+                    })
+                    .catch(error => {
+                        console.error(error)
+                        this.$router.push("register")
+                    })
             }
         },
 
@@ -240,8 +241,8 @@
             // it will call the function checkConnectionAndLoad every 500ms
             // until the connection to the blockchain is enstablished
             this.tmoConn = setInterval(() => {
-                this.checkConnectionAndLoad();
-            }, 500);
+                this.checkConnectionAndLoad()
+            }, 500)
         }
     }
 </script>

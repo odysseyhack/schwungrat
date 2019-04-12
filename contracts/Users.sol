@@ -28,8 +28,8 @@ contract Users {
 
     // Modifier: check if the caller of the smart contract is registered
     modifier checkSenderIsRegistered {
-    	require(isRegistered());
-    	_;
+        require(isRegistered());
+        _;
     }
 
 
@@ -55,13 +55,13 @@ contract Users {
     /**
      * Function to register a new user.
      *
-     * @param _userName 		The displaying name
+     * @param _userName         The displaying name
      * @param _status        The status of the user
      */
     function registerUser(string memory _userName, bytes32 _status) public
     returns(uint)
     {
-    	return addUser(msg.sender, _userName, _status);
+        return addUser(msg.sender, _userName, _status);
     }
 
 
@@ -70,9 +70,9 @@ contract Users {
      * Add a new user. This function must be private because an user
      * cannot insert another user on behalf of someone else.
      *
-     * @param _wAddr 		Address wallet of the user
-     * @param _userName		Displaying name of the user
-     * @param _status    	Status of the user
+     * @param _wAddr         Address wallet of the user
+     * @param _userName        Displaying name of the user
+     * @param _status        Status of the user
      */
     function addUser(address _wAddr, string memory  _userName, bytes32 _status) private
     returns(uint)
@@ -87,11 +87,11 @@ contract Users {
 
         // storing the new user details
         users[newUserId] = User({
-        	name: _userName,
-        	status: _status,
-        	walletAddress: _wAddr,
-        	createdAt: now,
-        	updatedAt: now
+            name: _userName,
+            status: _status,
+            walletAddress: _wAddr,
+            createdAt: now,
+            updatedAt: now
         });
 
         // emitting the event that a new user has been registered
@@ -106,24 +106,24 @@ contract Users {
      * Update the user profile of the caller of this method.
      * Note: the user can modify only his own profile.
      *
-     * @param _newUserName	The new user's displaying name
-     * @param _newStatus 	The new user's status
+     * @param _newUserName    The new user's displaying name
+     * @param _newStatus     The new user's status
      */
     function updateUser(string memory _newUserName, bytes32 _newStatus) checkSenderIsRegistered public
     returns(uint)
     {
-    	// An user can modify only his own profile.
-    	uint userId = usersIds[msg.sender];
+        // An user can modify only his own profile.
+        uint userId = usersIds[msg.sender];
 
-    	User storage user = users[userId];
+        User storage user = users[userId];
 
-    	user.name = _newUserName;
-    	user.status = _newStatus;
-    	user.updatedAt = now;
+        user.name = _newUserName;
+        user.status = _newStatus;
+        user.updatedAt = now;
 
-    	emit userUpdateEvent(userId);
+        emit userUpdateEvent(userId);
 
-    	return userId;
+        return userId;
     }
 
 
@@ -131,30 +131,30 @@ contract Users {
     /**
      * Get the user's profile information.
      *
-     * @param _id 	The ID of the user stored on the blockchain.
+     * @param _id     The ID of the user stored on the blockchain.
      */
     function getUserById(uint _id) public view
     returns(
-    	uint,
-    	string memory,
-    	bytes32,
-    	address,
-    	uint,
-    	uint
+        uint,
+        string memory,
+        bytes32,
+        address,
+        uint,
+        uint
     ) {
-    	// checking if the ID is valid
-    	require( (_id > 0) || (_id <= users.length) );
+        // checking if the ID is valid
+        require( (_id > 0) || (_id <= users.length) );
 
-    	User memory i = users[_id];
+        User memory i = users[_id];
 
-    	return (
-    		_id,
-    		i.name,
-    		i.status,
-    		i.walletAddress,
-    		i.createdAt,
-    		i.updatedAt
-    	);
+        return (
+            _id,
+            i.name,
+            i.status,
+            i.walletAddress,
+            i.createdAt,
+            i.updatedAt
+        );
     }
 
 
@@ -164,16 +164,16 @@ contract Users {
      */
     function getOwnProfile() checkSenderIsRegistered public view
     returns(
-    	uint,
-    	string memory,
-    	bytes32,
-    	address,
-    	uint,
-    	uint
+        uint,
+        string memory,
+        bytes32,
+        address,
+        uint,
+        uint
     ) {
-    	uint id = usersIds[msg.sender];
+        uint id = usersIds[msg.sender];
 
-    	return getUserById(id);
+        return getUserById(id);
     }
 
 
@@ -183,7 +183,7 @@ contract Users {
      */
     function isRegistered() public view returns (bool)
     {
-    	return (usersIds[msg.sender] > 0);
+        return (usersIds[msg.sender] > 0);
     }
 
 

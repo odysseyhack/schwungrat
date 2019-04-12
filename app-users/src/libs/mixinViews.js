@@ -1,5 +1,5 @@
 import BcExplorer from './BcExplorer'
-import UsersContract from '../assets/Users.json';
+import UsersContract from '../assets/Users.json'
 
 export default {
     data() {
@@ -12,7 +12,7 @@ export default {
     },
 
     created() {
-        this.init();
+        this.init()
     },
 
     methods: {
@@ -26,32 +26,32 @@ export default {
             // when this file is imported to other component it checks if the BcExplorer
             // is instatiated.
             if (window.bc == undefined) {
-                window.bc = new BcExplorer;
+                window.bc = new BcExplorer
 
                 // connecting to the blockchain and intializing the Users smart contract
                 window.bc.initWithContractJson(UsersContract, 'http://127.0.0.1:7545')
-                .then((error) => {
+                    .then((error) => {
                     // handling the connection error
-                    if (error) {
-                        this.bcConnected = false;
+                        if (error) {
+                            this.bcConnected = false
 
-                        this.showConnectionErrorMessage(error);
-                    } else {
+                            this.showConnectionErrorMessage(error)
+                        } else {
                         // calling a smart contract function in order to check the contract address
                         // is correct. NOTE: here you might be connected successfully.
                         // TODO: the check of the smart contract address validity it should be BcExplorer duty
-                        this.isRegistered()
-                        .then(res => {
-                            this.bcConnectionError = false;
-                            this.bcConnected = this.blockchainIsConnected();
-                        })
-                        .catch(error => {
-                            this.showConnectionErrorMessage(error);
-                            this.bcSmartContractAddressError = true;
-                        });
-                    }
-                })
-                .catch(error => this.showConnectionErrorMessage(error));
+                            this.isRegistered()
+                                .then(_res => {
+                                    this.bcConnectionError = false
+                                    this.bcConnected = this.blockchainIsConnected()
+                                })
+                                .catch(error => {
+                                    this.showConnectionErrorMessage(error)
+                                    this.bcSmartContractAddressError = true
+                                })
+                        }
+                    })
+                    .catch(error => this.showConnectionErrorMessage(error))
             } // end if (window.bc == undefined)
         },
 
@@ -63,15 +63,15 @@ export default {
         isRegistered() {
             return new Promise((resolve, reject) => {
                 window.bc.getMainAccount()
-                .then(account => {
-                    window.bc.contract().isRegistered({ from: account }, (error, res) => {
-                        if (error) reject(error);
+                    .then(account => {
+                        window.bc.contract().isRegistered({ from: account }, (error, res) => {
+                            if (error) reject(error)
 
-                        resolve(res);
-                    });
-                })
-                .catch(error => reject(error));
-            });
+                            resolve(res)
+                        })
+                    })
+                    .catch(error => reject(error))
+            })
         },
 
         /**
@@ -81,12 +81,12 @@ export default {
          * @return {void}
          */
         showConnectionErrorMessage(error=null) {
-            this.bcConnectionError = true;
+            this.bcConnectionError = true
 
-            if (error) console.log(error);
+            if (error) console.log(error)
 
             if (error && error.message) {
-                this.errorConnectionMessage = error.message;
+                this.errorConnectionMessage = error.message
             }
         },
 
@@ -97,9 +97,9 @@ export default {
          * @return {boolean}
          */
         blockchainIsConnected() {
-            this.bcConnected = ((window.bc != undefined) && window.bc.isConnected());
+            this.bcConnected = ((window.bc != undefined) && window.bc.isConnected())
 
-            return this.bcConnected;
+            return this.bcConnected
         },
 
         /**
@@ -109,7 +109,7 @@ export default {
          * @return {string}
          */
         toAscii(bytesStr) {
-            return window.bc.toAscii(bytesStr);
+            return window.bc.toAscii(bytesStr)
         },
 
         /**
@@ -119,7 +119,7 @@ export default {
          * @return {string}
          */
         toDate(timestamp) {
-            return new Date(timestamp * 1000).toISOString();
+            return new Date(timestamp * 1000).toISOString()
         }
     }
 }
