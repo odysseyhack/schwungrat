@@ -78,7 +78,8 @@
                 this.tmoReg = setInterval(() => {
                     if (this.blockchainIsConnected()) {
                         this.isRegistered()
-                            .then((error, res) => {
+                            .then((res) => {
+                                console.error("isRegistered result: ", res)
                                 if (res) {
                                     // stopping the setInterval
                                     clearInterval(this.tmoReg)
@@ -86,7 +87,7 @@
                                     this.userIsRegistered = res
                                 }
                             })
-                            .catch(error => console.log(error))
+                            .catch(error => console.error("Failed isRegistered check: ", error))
                     }
                 }, 1000)
             }
