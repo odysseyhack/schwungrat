@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Account from '@/views/Account'
-import List from '@/views/List'
 import Register from '@/views/Register'
+import ProposalList from '@/views/ProposalList'
+import CreateProposal from '@/views/CreateProposal'
 
 Vue.use(Router)
 
@@ -11,7 +12,12 @@ export default new Router({
         {
             path: '/',
             name: 'Home',
-            component: List
+            component: ProposalList
+        },
+        {
+            path: '/create',
+            name: 'CreateProposal',
+            component: CreateProposal
         },
         {
             path: '/account',

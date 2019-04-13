@@ -1,77 +1,91 @@
 <template>
   <div>
-    <h1 class="title">
-      Register
+    <h1 class="display-1">
+      Create proposal {{ progress }}
     </h1>
+    <br>
 
-    <div class="row">
-      <div class="col-md-3">
-        <div class="form-group">
-          <label for="description">Name</label>
-          <input
-            v-model="userName"
-            class="form-control"
-            placeholder="Enter your name"
-            type="text"
-          >
-        </div>
+    <v-stepper v-model="progress" vertical>
+      <v-stepper-step :complete="Boolean(proposal.name) && Boolean(proposal.description)" step="1" editable>
+        Basic Info 
+        <small>Name, description</small>
+      </v-stepper-step>
 
-        <div class="form-group">
-          <label for="description">Status</label>
-          <input
-            v-model="userStatus"
-            class="form-control"
-            placeholder="Enter your status"
-            type="text"
-          >
-        </div>
+      <v-stepper-content step="1">
+        <v-text-field
+          v-model="proposal.name"
+          label="Name"
+          box
+        />
+        <v-textarea
+          v-model="proposal.description"
+          label="Description"
+          box
+        />
+        <v-btn color="primary" @click="progress = 2">
+          Continue
+        </v-btn>
+        <v-btn flat>
+          Cancel
+        </v-btn>
+      </v-stepper-content>
 
-        <button
-          class="btn btn-primary"
-          :disabled="disableSubmit"
-          @click="performSubmit"
-        >
-          Register
-        </button>
-        <strong v-show="submitting">Submitting...</strong>
+      <v-stepper-step :complete="progress > 2" step="2">
+        Configure analytics for this app
+      </v-stepper-step>
 
-        <strong class="text-danger" />
+      <v-stepper-content step="2">
+        <v-card color="grey lighten-1" class="mb-5" height="200px" />
+        <v-btn color="primary" @click="progress = 3">
+          Continue
+        </v-btn>
+        <v-btn flat>
+          Cancel
+        </v-btn>
+      </v-stepper-content>
 
-        <div
-          v-show="errorStr"
-          class="alert alert-danger mt-3"
-          role="alert"
-        >
-          {{ errorStr }}
-          <br>
-          <small>Check the browser console for more details.</small>
-        </div>
+      <v-stepper-step :complete="progress > 3" step="3" optional>
+        Select an ad format and name ad unit
+      </v-stepper-step>
 
-        <div
-          v-show="successMessage"
-          class="alert alert-success mt-3"
-          role="alert"
-        >
-          <strong>You've been registerd!</strong>
-          <br>
-          You will be redirected to the profile page <strong>once the block will be mined!</strong>
-        </div>
-      </div>
-    </div>
+      <v-stepper-content step="3">
+        <v-card color="grey lighten-1" class="mb-5" height="200px" />
+        <v-btn color="primary" @click="progress = 4">
+          Continue
+        </v-btn>
+        <v-btn flat>
+          Cancel
+        </v-btn>
+      </v-stepper-content>
+
+      <v-stepper-step step="4">
+        View setup instructions
+      </v-stepper-step>
+      <v-stepper-content step="4">
+        <v-card color="grey lighten-1" class="mb-5" height="200px" />
+        <v-btn color="primary" @click="progress = 1">
+          Continue
+        </v-btn>
+        <v-btn flat>
+          Cancel
+        </v-btn>
+      </v-stepper-content>
+    </v-stepper>
   </div>
 </template>
 
 <script>
     // importing common function
     import mixin from '../libs/mixinViews'
+    import Proposal from '../models/Proposal'
 
     export default {
         mixins: [mixin],
 
         data() {
             return {
-                userName: '', // variable binded with the input field: name
-                userStatus: '', // variable binded with the input field: status
+                progress: 1,
+                proposal: new Proposal,
                 submitting: false, // true once the submit button is pressed
                 successMessage: false, // true when the user has been registered successfully
 
@@ -89,8 +103,7 @@
              */
             disableSubmit() {
                 return (
-                    !this.userName.length ||
-                    !this.userStatus.length ||
+                    // !this.proposal.checkRequiredFields() ||
                     this.submitting ||
                     !this.blockchainIsConnected()
                 )
@@ -98,23 +111,19 @@
         },
 
         created() {
-            // it checks every 500ms if the user is registered until the connection is established
-            this.redirectIfUserRegistered()
         },
 
         methods: {
             /**
-             * Perform the registration of the user when the submit button is pressed.
-             *
-             * @return {void}
+             * Perform the registration of the proposal when the submit button is pressed.
              */
-            performSubmit() {
+            async performSubmit() {
                 this.submitting = true
                 this.errorStr = null
                 this.successMessage = false
 
-                window.bc.getMainAccount()
-                    .then(address => this.performUserRegistration(address))
+                let account = await window.bc.getMainAccount()
+                this.performUserRegistration(account)
             },
 
             /**

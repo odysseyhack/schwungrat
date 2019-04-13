@@ -11,7 +11,7 @@
       <v-icon>add</v-icon>
       Create
     </v-btn>
-    <v-btn flat to="/proposed">
+    <v-btn flat to="/">
       <v-icon>list</v-icon>
       Proposed protocols
     </v-btn>
