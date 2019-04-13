@@ -15,6 +15,14 @@ contract Schwungrat {
         Commonized
     }
     
+    // stucture for candidates/members
+    struct TeamMember {
+        address hash;
+        string name;
+        uint share;
+        uint estimate;
+    }
+    
     // data structure that stores a protocol
     struct Protocol {
         string name;
@@ -25,6 +33,9 @@ contract Schwungrat {
         ProtocolStates state;
     }
     Protocol[] public protocols;
+    
+    mapping(uint => address[]) public protocolMembers;
+    
     
     
 
@@ -37,8 +48,28 @@ contract Schwungrat {
         // of the protocolIds mapping that does not exist (like protocolIds[0x12345]) you will
         // receive 0, that's why in the first position (with index 0) must be initialized
         addProtocol(address(0x0), "", "");
-        
-        addProtocol(address(0x263ad5218f4F3b14219F4daF10D44ac5c53691d7), "Test Prot for User1", "Description");
+        addProtocol(address(0x263ad5218f4F3b14219F4daF10D44ac5c53691d7), "Test Protocol for User1", "Description");
+    }
+    
+    /**
+     * Add users to team member list
+     * @param _id           The ID of the protocol stored on the blockchain.
+     * @param _members      Members to add to the protocol
+     */
+    function addMembersToProtocol(uint _id, address[] memory _members) public 
+    {
+        protocolMembers[_id] = _members;
+    }
+    
+    function getMembers(uint _id) public view
+    returns(
+        address
+    ) {
+        address user = protocolMembers[_id][0];
+
+        return (
+            user
+        );
     }
 
 
@@ -67,7 +98,6 @@ contract Schwungrat {
     returns(uint)
     {
         uint newProtocolId = protocols.length++;
-
         // storing the new user details
         protocols[newProtocolId] = Protocol({
             name: _protcolName,
