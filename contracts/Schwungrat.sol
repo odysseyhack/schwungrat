@@ -1,6 +1,20 @@
 pragma solidity ^0.5.2;
 
 contract Schwungrat {
+    
+    /**
+     * The following states (see finite state machine) represent
+     * all different phases of a protocol.
+     **/
+    enum ProtocolStates {
+        Draft,
+        TeamFormation,
+        Funding,
+        Implementation,
+        Production,
+        Commonized
+    }
+    
     // data structure that stores a protocol
     struct Protocol {
         string name;
@@ -8,23 +22,23 @@ contract Schwungrat {
         uint createdAt;
         uint updatedAt;
         address manager;
+        ProtocolStates state;
     }
-
     Protocol[] public protocols;
-
-
-
+    
+    
 
     /**
      * Constructor function
      */
     constructor() public
     {
-        // NOTE: the first user MUST be emtpy: if you are trying to access to an element
-        // of the usersIds mapping that does not exist (like usersIds[0x12345]) you will
+        // NOTE: the first protocol MUST be emtpy: if you are trying to access to an element
+        // of the protocolIds mapping that does not exist (like protocolIds[0x12345]) you will
         // receive 0, that's why in the first position (with index 0) must be initialized
-        // addUser(address(0x0), "", "");
-        addProtocol(address(0x222222222222), "Fancy Protocol", "Description for fancy Protocol");
+        addProtocol(address(0x0), "", "");
+        
+        addProtocol(address(0x263ad5218f4F3b14219F4daF10D44ac5c53691d7), "Test Prot for User1", "Description");
     }
 
 
@@ -60,7 +74,8 @@ contract Schwungrat {
             createdAt: now,
             updatedAt: now,
             manager: _wAddr,
-            description: _description
+            description: _description,
+            state: ProtocolStates.Draft
         });
 
         // emitting the event that a new user has been registered
@@ -80,7 +95,8 @@ contract Schwungrat {
         string memory,
         uint,
         uint,
-        address
+        address,
+        ProtocolStates
     ) {
         Protocol memory i = protocols[_id];
 
@@ -89,7 +105,8 @@ contract Schwungrat {
             i.name,
             i.createdAt,
             i.updatedAt,
-            i.manager
+            i.manager,
+            i.state
         );
     }
     
@@ -102,6 +119,32 @@ contract Schwungrat {
         // index 0 is empty check the contructor: addUser(address(0x0), "", "");
         return protocols.length;
     }
-    
+
+    /**
+     * Change state of protocol as protocol manager
+     * @param _id           The ID of the protocol stored on the blockchain.
+     * @param _newState     The desired state that protocol should transits to
+     */
+    function changeProtocolState(uint _id, ProtocolStates _newState) public 
+    {
+        Protocol storage protocol = protocols[_id];
+        protocol = protocols[_id];
+        
+        // Only the manager of the protocol can publish it for funding
+        require(msg.sender == protocol.manager);
+        
+        if(_newState == ProtocolStates.TeamFormation){
+            // Only protocols with draft status can be published
+            require(protocol.state == ProtocolStates.Draft);
+            protocol.state = ProtocolStates.TeamFormation;
+        }
+        
+        if(_newState == ProtocolStates.Funding){
+            // Only protocols with draft status can be published
+            require(protocol.state == ProtocolStates.TeamFormation);
+            protocol.state = ProtocolStates.Funding;
+        }
+
+    }
 
 }
