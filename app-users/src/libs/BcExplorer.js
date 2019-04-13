@@ -83,6 +83,7 @@ class BcExplorer {
                         web3js = new Web3(provider)
                     } catch (e) {
                         // this is in case metamask/mist is off and avoid the exception web3 is not instatiated
+                        console.warn("Web3 init error (first try):", e)
                         web3js = new Web3(provider)
                     }
                 }
@@ -294,6 +295,7 @@ class BcExplorer {
 
                     reject(new Error('BcExplorer error: networkId not available.'))
                 } else {
+                    console.debug("Detected network ID: " + networkId)
                     this.info.networkId = networkId
 
                     resolve(networkId)

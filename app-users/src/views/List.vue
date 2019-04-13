@@ -1,37 +1,54 @@
 <template>
-    <div>
-        <button class="btn btn-primary float-right mt-2" @click="reloadList">Reload</button>
-        <h1 class="title">User List</h1>
+  <div>
+    <button
+      class="btn btn-primary float-right mt-2"
+      @click="reloadList"
+    >
+      Reload
+    </button>
+    <h1 class="title">
+      User List
+    </h1>
 
-        <div class="clearfix"></div>
+    <div class="clearfix" />
 
-        <h2 v-show="!bcConnected">Not connect to the blockchain: please wait.</h2>
+    <h2 v-show="!bcConnected">
+      Not connect to the blockchain: please wait.
+    </h2>
 
-        <h2 v-show="(isLoading && bcConnected)">Loading...</h2>
+    <h2 v-show="(isLoading && bcConnected)">
+      Loading...
+    </h2>
 
-        <table class="table table-striped" v-show="!isLoading">
-            <thead class="thead-dark">
-                <tr>
-                    <th>User ID</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Address</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="user in users" :key="user[0]">
-                    <td>{{ user[0].toNumber() }}</td>
-                    <td>{{ user[1] }}</td>
-                    <td>{{ toAscii(user[2]) }}</td>
-                    <td>{{ user[3] }}</td>
-                    <td>{{ toDate( user[4].toNumber() ) }}</td>
-                    <td>{{ toDate( user[5].toNumber() ) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <table
+      v-show="!isLoading"
+      class="table table-striped"
+    >
+      <thead class="thead-dark">
+        <tr>
+          <th>User ID</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Address</th>
+          <th>Created At</th>
+          <th>Updated At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="user in users"
+          :key="user[0]"
+        >
+          <td>{{ user[0].toNumber() }}</td>
+          <td>{{ user[1] }}</td>
+          <td>{{ toAscii(user[2]) }}</td>
+          <td>{{ user[3] }}</td>
+          <td>{{ toDate( user[4].toNumber() ) }}</td>
+          <td>{{ toDate( user[5].toNumber() ) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
@@ -52,6 +69,14 @@
                 bcConnected: false, // blockchain is connected ()
                 tmoConn: null, // contain the intervalID given by setInterval
             }
+        }, // end methods
+
+        created() {
+            // it tries to get the user list from the blockchian once
+            // the connection is established
+            this.tmoConn = setInterval(() => {
+                this.getUserList()
+            }, 1000)
         },
 
         methods: {
@@ -105,14 +130,6 @@
                 }) // end totalUsers call
             }
 
-        }, // end methods
-
-        created() {
-            // it tries to get the user list from the blockchian once
-            // the connection is established
-            this.tmoConn = setInterval(() => {
-                this.getUserList()
-            }, 1000)
         }
     }
 </script>

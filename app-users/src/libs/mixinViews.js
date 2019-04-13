@@ -1,5 +1,5 @@
 import BcExplorer from './BcExplorer'
-import UsersContract from '../assets/Users.json'
+import UsersContract from '../assets/contracts/Users.json'
 
 export default {
     data() {
@@ -29,17 +29,16 @@ export default {
                 window.bc = new BcExplorer
 
                 // connecting to the blockchain and intializing the Users smart contract
-                window.bc.initWithContractJson(UsersContract, 'http://127.0.0.1:7545')
+                window.bc.initWithContractJson(UsersContract, 'http://127.0.0.1:7545') //TODO: get blockchain URL from config
                     .then((error) => {
-                    // handling the connection error
+                        // handling the connection error
                         if (error) {
                             this.bcConnected = false
-
                             this.showConnectionErrorMessage(error)
                         } else {
-                        // calling a smart contract function in order to check the contract address
-                        // is correct. NOTE: here you might be connected successfully.
-                        // TODO: the check of the smart contract address validity it should be BcExplorer duty
+                            // calling a smart contract function in order to check the contract address
+                            // is correct. NOTE: here you might be connected successfully.
+                            // TODO: the check of the smart contract address validity it should be BcExplorer duty
                             this.isRegistered()
                                 .then(_res => {
                                     this.bcConnectionError = false
@@ -70,7 +69,10 @@ export default {
                             resolve(res)
                         })
                     })
-                    .catch(error => reject(error))
+                    .catch(error => {
+                        console.error("Failed to get main account:", error)
+                        reject(error)
+                    })
             })
         },
 
