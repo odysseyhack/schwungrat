@@ -117,7 +117,7 @@ contract Schwungrat {
     {
         // NOTE: the total registered user is length-1 because the user with
         // index 0 is empty check the contructor: addUser(address(0x0), "", "");
-        return protocols.length;
+        return protocols.length-1;
     }
 
     /**
