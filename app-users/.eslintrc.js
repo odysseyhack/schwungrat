@@ -39,7 +39,14 @@ module.exports = {
         ],
         "no-unused-vars": [
             "error", { "argsIgnorePattern": "^_" }
-        ]
+        ],
+        "vue/max-attributes-per-line": ["error", {
+            "singleline": 4,
+            "multiline": {
+                "max": 4,
+                "allowFirstLine": true
+            }
+        }]
     },
     "overrides": [
         {

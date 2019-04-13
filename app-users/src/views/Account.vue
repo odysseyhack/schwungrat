@@ -40,14 +40,12 @@
           Save
         </button>
 
-        <strong
-          v-show="submitting"
-          class="ml-2"
-        >Submitting...</strong>
-        <strong
-          v-show="successSave"
-          class="ml-2 text-success"
-        >Tx submitted!</strong>
+        <strong v-show="submitting" class="ml-2">
+          Submitting...
+        </strong>
+        <strong v-show="successSave" class="ml-2 text-success">
+          Tx submitted!
+        </strong>
       </div>
 
       <div class="col-md-3">

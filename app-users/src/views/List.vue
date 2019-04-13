@@ -1,8 +1,7 @@
 <template>
   <div>
-    <button
-      class="btn btn-primary float-right mt-2"
-      @click="reloadList"
+    <button class="btn btn-primary float-right mt-2" 
+            @click="reloadList"
     >
       Reload
     </button>
@@ -13,17 +12,14 @@
     <div class="clearfix" />
 
     <h2 v-show="!bcConnected">
-      Not connect to the blockchain: please wait.
+      Not connected to the blockchain: please wait.
     </h2>
 
     <h2 v-show="(isLoading && bcConnected)">
       Loading...
     </h2>
 
-    <table
-      v-show="!isLoading"
-      class="table table-striped"
-    >
+    <table v-show="!isLoading" class="table table-striped">
       <thead class="thead-dark">
         <tr>
           <th>User ID</th>

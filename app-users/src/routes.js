@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Profile from '@/views/Profile'
+import Account from '@/views/Account'
 import List from '@/views/List'
 import Register from '@/views/Register'
 
@@ -10,13 +10,13 @@ export default new Router({
     routes: [
         {
             path: '/',
-            name: 'List',
+            name: 'Home',
             component: List
         },
         {
-            path: '/profile',
-            name: 'Profile',
-            component: Profile
+            path: '/account',
+            name: 'Account',
+            component: Account
         },
         {
             path: '/register',

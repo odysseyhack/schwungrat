@@ -1,5 +1,40 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <!-- <v-navigation-drawer app /> -->
+  <v-toolbar app>
+    <!-- <v-toolbar-side-icon /> -->
+    <v-icon>device_hub</v-icon>
+    <v-toolbar-title>Schwungrat</v-toolbar-title>
+
+    <v-spacer />
+
+    <v-btn flat to="/create">
+      <v-icon>add</v-icon>
+      Create
+    </v-btn>
+    <v-btn flat to="/proposed">
+      <v-icon>list</v-icon>
+      Proposed protocols
+    </v-btn>
+
+    <v-spacer />
+
+    <v-btn icon to="/account">
+      <v-icon>account_circle</v-icon>
+    </v-btn>
+
+    <!-- <template v-slot:extension>
+        <v-toolbar-items>
+          <v-btn
+            flat
+            to="/create"
+          >
+            Create
+          </v-btn>
+        </v-toolbar-items>
+      </template> -->
+  </v-toolbar>
+
+  <!-- <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <ul class="navbar-nav">
       <router-link
         tag="li"
@@ -37,7 +72,7 @@
         </strong>
       </li>
     </ul>
-  </nav>
+  </nav> -->
 </template>
 
 <script>
@@ -51,7 +86,7 @@
             return {
                 tmoConn: null, // contain the intervalID given by setInterval
                 tmoReg: null, // contain the intervalID given by setInterval
-                connectedClass: 'text-danger', // bootstrap class for the connection status (red when not connected, green when connected)
+                connectedClass: 'red', // vuetify class for the connection status (red when not connected, green when connected)
                 userIsRegistered: false, // true when the user that is visiting the page is registered
             }
         },
@@ -77,7 +112,7 @@
                         clearInterval(this.tmoConn)
 
                         // showing the connected message on the top bar and setting the class too
-                        this.connectedClass = 'text-success'
+                        this.connectedClass = 'green'
 
                         this.isRegistered()
                             .then(res => this.userIsRegistered = res)
