@@ -1,5 +1,5 @@
 import BcExplorer from './BcExplorer'
-import UsersContract from '../assets/contracts/Users.json'
+import SchwungratContract from '../assets/contracts/Schwungrat.json'
 
 export default {
     data() {
@@ -28,18 +28,20 @@ export default {
             if (window.bc == undefined) {
                 window.bc = new BcExplorer
 
-                // connecting to the blockchain and intializing the Users smart contract
-                window.bc.initWithContractJson(UsersContract, 'http://127.0.0.1:7545') //TODO: get blockchain URL from config
+                // connecting to the blockchain and intializing the smart contract
+                window.bc.initWithContractJson(SchwungratContract, 'http://127.0.0.1:7545') //TODO: get blockchain URL from config
                     .then((error) => {
                         // handling the connection error
                         if (error) {
                             this.bcConnected = false
                             this.showConnectionErrorMessage(error)
                         } else {
+                            this.bcConnectionError = false
+                            this.bcConnected = this.blockchainIsConnected()
                             // calling a smart contract function in order to check the contract address
                             // is correct. NOTE: here you might be connected successfully.
                             // TODO: the check of the smart contract address validity it should be BcExplorer duty
-                            this.isRegistered()
+                            /* this.isRegistered()
                                 .then(_res => {
                                     this.bcConnectionError = false
                                     this.bcConnected = this.blockchainIsConnected()
@@ -47,7 +49,7 @@ export default {
                                 .catch(error => {
                                     this.showConnectionErrorMessage(error)
                                     this.bcSmartContractAddressError = true
-                                })
+                                }) */
                         }
                     })
                     .catch(error => this.showConnectionErrorMessage(error))
@@ -62,13 +64,13 @@ export default {
         isRegistered() {
             return new Promise((resolve, reject) => {
                 window.bc.getMainAccount()
-                    .then(account => {
-                        window.bc.contract().isRegistered({ from: account }, (error, res) => {
-                            if (error) reject(error)
+                // .then(account => {
+                //     window.bc.contract().isRegistered({ from: account }, (error, res) => {
+                //         if (error) reject(error)
 
-                            resolve(res)
-                        })
-                    })
+                    //         resolve(res)
+                    //     })
+                    // })
                     .catch(error => {
                         console.error("Failed to get main account:", error)
                         reject(error)

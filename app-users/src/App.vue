@@ -6,6 +6,7 @@
       <v-container fluid>
         <v-alert :value="!bcConnected && !bcConnectionError" type="info">
           Connecting to Blockchain...
+          <v-btn small flat dark onclick="window.location.reload(false)">Stuck? Click to reload</v-btn>
           <v-progress-linear :indeterminate="true" />
         </v-alert>
         <v-alert :value="bcConnectionError" type="error">
@@ -25,7 +26,7 @@
           <ul>
             <li>The blockchain is running.</li>
             <li>The port in your settings (file: <b>libs/mixinViews.js</b>) match with the blockchain configuration.</li>
-            <li>The compiled smart contract <b>app-users/src/assets/contracts/Users.json</b> is not up to date with <b>build/Users.json</b>.</li>
+            <li>The compiled smart contract(s) <b>app-users/src/assets/contracts/*.json</b> is not up to date with <b>build/*.json</b>.</li>
           </ul>
 
           <v-btn onclick="window.location.reload(false);">
@@ -33,7 +34,7 @@
           </v-btn>
         </v-alert>
 
-        <div v-show="bcConnected && !bcConnectionError" class="p-4">
+        <div> <!-- v-show="bcConnected && !bcConnectionError" -->
           <router-view />
         </div>
       </v-container>

@@ -1,26 +1,30 @@
 <template>
   <div>
     <h1 class="display-1">
-      Create proposal {{ progress }}
+      Submit protocol
     </h1>
     <br>
+    <p>
+      Create a draft to be submitted to the platform.<br>
+      Only the basic fields are mandatory.
+    </p>
 
     <v-stepper v-model="progress" vertical>
-      <v-stepper-step :complete="Boolean(proposal.name) && Boolean(proposal.description)" step="1" editable>
+      <v-stepper-step :complete="Boolean(protocol.name) && Boolean(protocol.description)" step="1" editable>
         Basic Info 
         <small>Name*, Short description*</small>
       </v-stepper-step>
 
       <v-stepper-content step="1">
         <v-text-field
-        v-model="proposal.name"
-        label="Name"
-        box
+          v-model="protocol.name"
+          label="Name"
+          box
         />
         <v-textarea
-        v-model="proposal.description"
-        label="Short description"
-        box
+          v-model="protocol.description"
+          label="Short description"
+          box
         />
         <v-btn color="primary" @click="progress = 2">
           Continue
@@ -36,9 +40,9 @@
 
       <v-stepper-content step="2">
         <v-textarea
-        v-model="proposal.description"
-        label="Description"
-        box
+          v-model="protocol.description"
+          label="Description"
+          box
         />        
         <v-btn color="primary" @click="progress = 3">
           Continue
@@ -54,12 +58,13 @@
 
       <v-stepper-content step="3">
         <template>
-            <v-layout row>
-              <v-flex xs3>
-                <v-checkbox v-model="checkbox" label="Lorem"></v-checkbox><v-btn color="info">Info</v-btn>
-              </v-flex>
-
-            </v-layout>
+          <v-layout row>
+            <v-flex xs3>
+              <v-checkbox label="Lorem" /><v-btn color="info">
+                Info
+              </v-btn>
+            </v-flex>
+          </v-layout>
         </template>
         <v-btn color="primary" @click="progress = 4">
           Continue
@@ -82,13 +87,54 @@
         </v-btn>
       </v-stepper-content>
     </v-stepper>
+
+    <!-- Save button -->
+    <v-fab-transition>
+      <v-btn
+        v-show="submitAvailable"
+        fab fixed bottom right
+        color="green"
+        @click="performSubmit()"
+      >
+        <v-icon>check</v-icon>
+      </v-btn>
+    </v-fab-transition>
+
+    <!-- Saving dialog -->
+    <v-dialog
+      :value="submitting || submitDone"
+      persistent
+      width="300"
+    >
+      <v-card
+        :color="submitDone ? 'green' : 'primary'"
+        dark
+      >
+        <v-card-text v-if="!submitDone">
+          Saving protocol to Blockchain
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="mb-0"
+          />
+        </v-card-text>
+        <v-card-text v-else>
+          <v-icon>check</v-icon> Saved successfully!
+        </v-card-text>
+        <v-card-actions>
+          <v-btn v-if="submitDone" to="/">
+            Go to protocol
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
     // importing common function
     import mixin from '../libs/mixinViews'
-    import Proposal from '../models/Proposal'
+    import Protocol from '../models/Protocol'
 
     export default {
         mixins: [mixin],
@@ -96,9 +142,9 @@
         data() {
             return {
                 progress: 1,
-                proposal: new Proposal,
+                protocol: new Protocol,
                 submitting: false, // true once the submit button is pressed
-                successMessage: false, // true when the user has been registered successfully
+                submitDone: false, // true when the submit process completed
 
                 tmoConn: null, // contain the intervalID given by setInterval
                 tmoReg: null, // contain the intervalID given by setInterval
@@ -109,14 +155,16 @@
         computed: {
             /**
              * It disables the submit button when the the name or userStatus are not filled
-             * or the submit button is pressed or the connection with the blockchin is
+             * or the submit button is pressed or the connection with the blockchain is
              * not established.
              */
-            disableSubmit() {
+            submitAvailable() {
                 return (
-                    // !this.proposal.checkRequiredFields() ||
-                    this.submitting ||
-                    !this.blockchainIsConnected()
+                    this.progress > 1 &&
+                    // !this.protocol.checkRequiredFields() &&
+                    Boolean(this.protocol.name) && Boolean(this.protocol.description) &&
+                    !this.submitting &&
+                    this.blockchainIsConnected()
                 )
             }
         },
@@ -126,15 +174,30 @@
 
         methods: {
             /**
-             * Perform the registration of the proposal when the submit button is pressed.
+             * Perform the registration of the protocol when the submit button is pressed.
              */
-            async performSubmit() {
+            performSubmit() {
+                if (!this.submitAvailable) {
+                    alert("Submit not available")
+                    return
+                }
                 this.submitting = true
                 this.errorStr = null
-                this.successMessage = false
+                this.submitDone = false
 
-                let account = await window.bc.getMainAccount()
-                this.performUserRegistration(account)
+                window.bc.contract().createProtocolProposal(
+                    this.protocol.name,
+                    this.protocol.description,
+                    (error, newId) => {
+                        if (error) {
+                            alert("Failed to create protocol: " + error)
+                            this.submitting = false
+                        } else {
+                            this.submitting = false
+                            this.submitDone = true
+                            console.log("Created: " + newId)
+                        }
+                    })
             },
 
             /**
@@ -151,41 +214,6 @@
                 if (err) this.errorStr = err.toString()
 
                 if (! this.errorStr) this.errorStr = 'Error occurred!'
-            },
-
-            /**
-             * Perform the user registration cannling the smart contract
-             * function registerUser.
-             *
-             * @param {string} address
-             * @return {void}
-             */
-            performUserRegistration(address) {
-                window.bc.contract().registerUser(
-                    this.userName,
-                    this.userStatus,
-                    {
-                        from: address,
-                        gas: 800000
-                    },
-                    (err, txHash) => {
-                        this.submitting = false
-
-                        if (err) {
-                            this.showErrorMessage(err)
-                        }
-                        else {
-                            this.successMessage = true
-
-                            // it emits a global event in order to update the top menu bar
-                            Event.$emit('userregistered', txHash)
-
-                            // the transaction was submitted and the user will be redirected to the
-                            // profile page once the block will be mined
-                            this.redirectWhenBlockMined()
-                        }
-                    }
-                )
             },
 
             /**

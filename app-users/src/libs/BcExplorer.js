@@ -388,6 +388,7 @@ class BcExplorer {
         try {
             await this.getCoinbase()
             var mainAccount = await this.getMainAccount()
+            window.web3.eth.defaultAccount = mainAccount
             await this.getBalance(mainAccount)
             await this.getNetworkId()
 
