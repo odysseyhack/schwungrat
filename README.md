@@ -8,36 +8,19 @@ This is a simple decentralized application built using **Ethereum** blockchain (
 - Ganache or your private network
 - Metamask: not mandatory but better if you want to act as different users
 
-# Connect to Schwungrat Contract
-1) Make sure that Ganache is running on Port 8545
-2) Deploy the contract with
-
-    truffle migrate --reset
-
-3) Truffle will return the address of the contract. For example "> contract address:    0x524BFAeeE766c7AEA06903207382Cc3ce3a67b72"
-4) Start RemixIDE (https://remix.ethereum.org)
-5) Select the Tab "Run" on the right side
-6) Choose Environment "Web3 Provider" and confirm that you want to connect to the node
-7) Paste the contract address in the field "At Address" and click on the Button "At Address"
-8) You should now see the "Schwungrat" Contract in the "Deployed Categories" window and all available methods
-
 # Quick Installation
 1) Clone the project into a folder of your choice (from here on **~/dapp**).
-2) Start ganache (or your private blockchain).
+2) Start ganache (or your private blockchain, change the `--network` parameter accordingly).
 3) Open the terminal (if you are using Windows you **must use the Power Shell**) in the folder **~/dapp** and run the command:
 ```sh
-$ truffle console --network ganache
+$ truffle --network ganache migrate --reset --compile-all
 ```
-4) If ganache is running you should be inside the truffle console; now run the following command in the truffle console:
-```sh
-> migrate --reset --compile-all
-```
-5) If the migration was successful, copy the file **~/dapp/build/contracts/Users.json** into the folder **~/dapp/app-users/src/assets/**
-6) Open another terminal in the folder **~/dapp/app-users** and run the command:
+4) If the migration was successful, copy the compiled contracts **~/dapp/build/contracts/*.json** into the folder **~/dapp/app-users/src/assets/contracts/**
+5) Open another terminal in the folder **~/dapp/app-users** and run the command:
 ```sh
 $ yarn install
 ```
-7) Once all the dependencies are installed run the command:
+6) Once all the dependencies are installed run the command:
 ```sh
 $ yarn run dev
 ```
@@ -47,8 +30,21 @@ DONE  Compiled successfully in 5166ms           15:54:53
 
 Your application is running here: http://localhost:8080
 ```
-8) Open the browser, go to the URL shown by your terminal and play with the DApp!
+7) Open the browser, go to the URL shown by your terminal and play with the DApp!
 
 **NOTE:** if you want to act as different users, you have to install metamask in your browser, then import the accounts into metamask and finally change account on metamask in order to register a new user.
+
+# Connect with Remix (for debugging)
+1) Make sure that Ganache is running on Port 8545
+2) Deploy the contract with
+
+    truffle migrate --network NETWORK --reset
+
+3) Truffle will return the address of the contract. For example "> contract address:    0x524BFAeeE766c7AEA06903207382Cc3ce3a67b72"
+4) Start RemixIDE (https://remix.ethereum.org)
+5) Select the Tab "Run" on the right side
+6) Choose Environment "Web3 Provider" and confirm that you want to connect to the node
+7) Paste the contract address in the field "At Address" and click on the Button "At Address"
+8) You should now see the "Schwungrat" Contract in the "Deployed Categories" window and all available methods
 
 App framework from: [DanieleFavi.com](https://www.danielefavi.com/create-your-blockchain-dapp-with-ethereum-and-vuejs/).

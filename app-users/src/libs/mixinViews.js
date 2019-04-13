@@ -1,5 +1,5 @@
 import BcExplorer from './BcExplorer'
-import UsersContract from '../assets/Users.json'
+import UsersContract from '../assets/contracts/Users.json'
 
 export default {
     data() {
