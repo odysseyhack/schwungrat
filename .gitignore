@@ -1,3 +1,4 @@
 /build
 /app-users/node_modules
 /app-users/package-lock.json
+contracts/.DS_Store

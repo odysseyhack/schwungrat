@@ -8,6 +8,19 @@ This is a simple decentralized application built using **Ethereum** blockchain (
 - Ganache or your private network
 - Metamask: not mandatory but better if you want to act as different users
 
+# Connect to Schwungrat Contract
+1) Make sure that Ganache is running on Port 8545
+2) Deploy the contract with
+
+    truffle migrate --reset
+
+3) Truffle will return the address of the contract. For example "> contract address:    0x524BFAeeE766c7AEA06903207382Cc3ce3a67b72"
+4) Start RemixIDE (https://remix.ethereum.org)
+5) Select the Tab "Run" on the right side
+6) Choose Environment "Web3 Provider" and confirm that you want to connect to the node
+7) Paste the contract address in the field "At Address" and click on the Button "At Address"
+8) You should now see the "Schwungrat" Contract in the "Deployed Categories" window and all available methods
+
 # Quick Installation
 1) Clone the project into a folder of your choice (from here on **~/dapp**).
 2) Start ganache (or your private blockchain).
