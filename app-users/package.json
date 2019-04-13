@@ -5,9 +5,9 @@
   "author": "DanieleFavi.com",
   "private": true,
   "scripts": {
-    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "dev": "webpack-dev-server --inline --progress --config build-config/webpack.dev.conf.js",
     "start": "npm run dev",
-    "build": "node build/build.js"
+    "build": "node build-config/build.js"
   },
   "dependencies": {
     "material-design-icons-iconfont": "^4.0.5",
