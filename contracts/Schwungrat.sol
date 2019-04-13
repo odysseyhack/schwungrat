@@ -14,15 +14,7 @@ contract Schwungrat {
         Production,
         Commonized
     }
-    
-    // stucture for candidates/members
-    struct TeamMember {
-        address hash;
-        string name;
-        uint share;
-        uint estimate;
-    }
-    
+
     // data structure that stores a protocol
     struct Protocol {
         string name;
@@ -31,14 +23,11 @@ contract Schwungrat {
         uint updatedAt;
         address manager;
         ProtocolStates state;
+        uint totalImplementationCost;
+        uint addionalFees;
     }
     Protocol[] public protocols;
     
-    mapping(uint => address[]) public protocolMembers;
-    
-    
-    
-
     /**
      * Constructor function
      */
@@ -47,33 +36,9 @@ contract Schwungrat {
         // NOTE: the first protocol MUST be emtpy: if you are trying to access to an element
         // of the protocolIds mapping that does not exist (like protocolIds[0x12345]) you will
         // receive 0, that's why in the first position (with index 0) must be initialized
-        addProtocol(address(0x0), "", "");
-        addProtocol(address(0x263ad5218f4F3b14219F4daF10D44ac5c53691d7), "Test Protocol for User1", "Description");
+        addProtocol(address(0x0), "", "", 0);
+        addProtocol(address(0x263ad5218f4F3b14219F4daF10D44ac5c53691d7), "Test Protocol for User1", "Description", 5);
     }
-    
-    /**
-     * Add users to team member list
-     * @param _id           The ID of the protocol stored on the blockchain.
-     * @param _members      Members to add to the protocol
-     */
-    function addMembersToProtocol(uint _id, address[] memory _members) public 
-    {
-        protocolMembers[_id] = _members;
-    }
-    
-    function getMembers(uint _id) public view
-    returns(
-        address
-    ) {
-        address user = protocolMembers[_id][0];
-
-        return (
-            user
-        );
-    }
-
-
-
     
     /**
      * Function to create a new protocol proposal.
@@ -81,20 +46,21 @@ contract Schwungrat {
      * @param _protocolName        The protocol name
      * * @param _protocolDescription        The protocol description
      */
-    function createProtocolProposal(string memory _protocolName, string memory _protocolDescription) public
+    function createProtocolProposal(string memory _protocolName, string memory _protocolDescription, uint _totalCost) public
     returns(uint)
     {
-        return addProtocol(msg.sender, _protocolName, _protocolDescription);
+        return addProtocol(msg.sender, _protocolName, _protocolDescription, _totalCost);
     }
     
     /**
-     * TBDTBDTBD
+     * Internal Function to add protocol
      *
      * @param _wAddr         Address wallet of the iniator
      * @param _protcolName   Displaying name of the protocol
      * @param _description   Description of the protocol
+     * @param _totalCost     Total Cost to implement the protocol
      */
-    function addProtocol(address _wAddr, string memory _protcolName, string memory _description) private
+    function addProtocol(address _wAddr, string memory _protcolName, string memory _description, uint _totalCost) private
     returns(uint)
     {
         uint newProtocolId = protocols.length++;
@@ -105,7 +71,9 @@ contract Schwungrat {
             updatedAt: now,
             manager: _wAddr,
             description: _description,
-            state: ProtocolStates.Draft
+            state: ProtocolStates.Draft,
+            totalImplementationCost: _totalCost,
+            addionalFees: 0
         });
 
         // emitting the event that a new user has been registered
@@ -126,7 +94,9 @@ contract Schwungrat {
         uint,
         uint,
         address,
-        ProtocolStates
+        ProtocolStates,
+        uint,
+        uint
     ) {
         Protocol memory i = protocols[_id];
 
@@ -136,7 +106,9 @@ contract Schwungrat {
             i.createdAt,
             i.updatedAt,
             i.manager,
-            i.state
+            i.state,
+            i.totalImplementationCost,
+            i.addionalFees
         );
     }
     
@@ -174,7 +146,44 @@ contract Schwungrat {
             require(protocol.state == ProtocolStates.TeamFormation);
             protocol.state = ProtocolStates.Funding;
         }
+        
+        if(_newState == ProtocolStates.Production){
+            // Only protocols with funcing status can be published
+            require(protocol.state == ProtocolStates.Funding);
+            protocol.state = ProtocolStates.Production;
+        }
 
+    }
+    
+    /**
+     * Implemented Protocol pays transaction fee back
+     * @param _id           The ID of the protocol stored on the blockchain.
+     * @param _fee          The transaction fee
+     */
+    function payTransactionFee(uint _id, uint _fee) public 
+    {
+        Protocol storage protocol = protocols[_id];
+        protocol = protocols[_id];
+        
+        // Protocol needs to be Production or Commonized
+        require(protocol.state == ProtocolStates.Production || protocol.state == ProtocolStates.Commonized);
+        
+        uint newCost = protocol.totalImplementationCost - _fee;
+        
+        if(newCost > 0){
+            protocol.totalImplementationCost = newCost;
+        }
+        
+        if(newCost <= 0 && protocol.state == ProtocolStates.Production){
+            protocol.totalImplementationCost = 0;
+            protocol.state = ProtocolStates.Commonized;
+        }
+        
+        if(protocol.state == ProtocolStates.Commonized){
+            protocol.totalImplementationCost = 0;
+            protocol.addionalFees = protocol.addionalFees + _fee;
+        }
+        
     }
 
 }
