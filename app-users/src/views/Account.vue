@@ -122,9 +122,16 @@
         created() {
             // it will call the function checkConnectionAndLoad every 500ms
             // until the connection to the blockchain is enstablished
-            this.tmoConn = setInterval(() => {
-                this.checkConnectionAndLoad()
-            }, 500)
+            if (this.blockchainIsConnected) {
+                this.loadEverything()
+            } else {
+                this.tmoConn = setInterval(() => {
+                    if (this.blockchainIsConnected()) {
+                        clearInterval(this.tmoConn) // stopping the interval
+                        this.loadEverything()
+                    }
+                }, 500)
+            }
         },
 
         methods: {
@@ -228,20 +235,6 @@
 
                     this.balance = window.bc.weiToEther( info.balance )
                 })
-            },
-
-            /**
-             * It loads the user information once connected to the blockchian.
-             *
-             * @return {void}
-             */
-            checkConnectionAndLoad() {
-                if (this.blockchainIsConnected()) {
-                    // stopping the interval
-                    clearInterval(this.tmoConn)
-
-                    this.loadEverything()
-                }
             },
 
             /**
