@@ -4,11 +4,15 @@ contract Schwungrat {
     // data structure that stores a protocol
     struct Protocol {
         string name;
+        string description;
         uint createdAt;
         uint updatedAt;
+        address manager;
     }
 
     Protocol[] public protocols;
+
+
 
 
     /**
@@ -20,8 +24,7 @@ contract Schwungrat {
         // of the usersIds mapping that does not exist (like usersIds[0x12345]) you will
         // receive 0, that's why in the first position (with index 0) must be initialized
         // addUser(address(0x0), "", "");
-
-        addProtocol(address(0x222222222222), "Fancy Protocol");
+        addProtocol(address(0x222222222222), "Fancy Protocol", "Description for fancy Protocol");
     }
 
 
@@ -31,20 +34,22 @@ contract Schwungrat {
      * Function to create a new protocol proposal.
      *
      * @param _protocolName        The protocol name
+     * * @param _protocolDescription        The protocol description
      */
-    function createProtocolProposal(string memory _protocolName) public
+    function createProtocolProposal(string memory _protocolName, string memory _protocolDescription) public
     returns(uint)
     {
-        return addProtocol(msg.sender, _protocolName);
+        return addProtocol(msg.sender, _protocolName, _protocolDescription);
     }
     
     /**
      * TBDTBDTBD
      *
-     * @param _wAddr         Address wallet of the user
-     * @param _protcolName   Displaying name of the user
+     * @param _wAddr         Address wallet of the iniator
+     * @param _protcolName   Displaying name of the protocol
+     * @param _description   Description of the protocol
      */
-    function addProtocol(address _wAddr, string memory _protcolName) private
+    function addProtocol(address _wAddr, string memory _protcolName, string memory _description) private
     returns(uint)
     {
         uint newProtocolId = protocols.length++;
@@ -53,7 +58,9 @@ contract Schwungrat {
         protocols[newProtocolId] = Protocol({
             name: _protcolName,
             createdAt: now,
-            updatedAt: now
+            updatedAt: now,
+            manager: _wAddr,
+            description: _description
         });
 
         // emitting the event that a new user has been registered
@@ -70,13 +77,19 @@ contract Schwungrat {
     function getProtocolById(uint _id) public view
     returns(
         uint,
-        string memory
+        string memory,
+        uint,
+        uint,
+        address
     ) {
         Protocol memory i = protocols[_id];
 
         return (
             _id,
-            i.name
+            i.name,
+            i.createdAt,
+            i.updatedAt,
+            i.manager
         );
     }
     
