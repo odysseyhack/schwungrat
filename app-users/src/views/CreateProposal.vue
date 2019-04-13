@@ -8,19 +8,19 @@
     <v-stepper v-model="progress" vertical>
       <v-stepper-step :complete="Boolean(proposal.name) && Boolean(proposal.description)" step="1" editable>
         Basic Info 
-        <small>Name, description</small>
+        <small>Name*, Short description*</small>
       </v-stepper-step>
 
       <v-stepper-content step="1">
         <v-text-field
-          v-model="proposal.name"
-          label="Name"
-          box
+        v-model="proposal.name"
+        label="Name"
+        box
         />
         <v-textarea
-          v-model="proposal.description"
-          label="Description"
-          box
+        v-model="proposal.description"
+        label="Short description"
+        box
         />
         <v-btn color="primary" @click="progress = 2">
           Continue
@@ -30,12 +30,16 @@
         </v-btn>
       </v-stepper-content>
 
-      <v-stepper-step :complete="progress > 2" step="2">
-        Configure analytics for this app
+      <v-stepper-step :complete="progress > 2" step="2" editable>
+        Massive Transformative Purpose (MTP)* 
       </v-stepper-step>
 
       <v-stepper-content step="2">
-        <v-card color="grey lighten-1" class="mb-5" height="200px" />
+        <v-textarea
+        v-model="proposal.description"
+        label="Description"
+        box
+        />        
         <v-btn color="primary" @click="progress = 3">
           Continue
         </v-btn>
@@ -44,12 +48,19 @@
         </v-btn>
       </v-stepper-content>
 
-      <v-stepper-step :complete="progress > 3" step="3" optional>
-        Select an ad format and name ad unit
+      <v-stepper-step :complete="progress > 3" step="3" optional editable>
+        Select up to 5 major problems, the protocol should solve
       </v-stepper-step>
 
       <v-stepper-content step="3">
-        <v-card color="grey lighten-1" class="mb-5" height="200px" />
+        <template>
+            <v-layout row>
+              <v-flex xs3>
+                <v-checkbox v-model="checkbox" label="Lorem"></v-checkbox><v-btn color="info">Info</v-btn>
+              </v-flex>
+
+            </v-layout>
+        </template>
         <v-btn color="primary" @click="progress = 4">
           Continue
         </v-btn>
