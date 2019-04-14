@@ -47,7 +47,7 @@ import AmountPicker from ''
               <v-card-title>
                 <h4>{{ props.item.name }}</h4>
                 <v-spacer />
-                <span class="font-weight-bold text-uppercase">{{ props.item.status }}</span>
+                <span class="font-weight-bold text-uppercase" @click="startStatusChange(props.item)">{{ props.item.status }}</span>
               </v-card-title>
               <v-divider />
 
@@ -60,7 +60,9 @@ import AmountPicker from ''
                   {{ props.item.purpose }}
                 </p>
 
-                <strong>Funding:</strong> Wei {{ props.item.balance }} / {{ props.item.totalImplementationCost }}
+                <strong>Balance:</strong> {{ props.item.balance }}
+                <strong>Repayed:</strong> {{ (props.item.totalFunding - props.item.remainingDebt)}}
+                <strong>Funding:</strong> {{ props.item.totalFunding }} / {{ props.item.totalImplementationCost }}
               </v-card-text>
               <v-progress-linear
                 color="info"
@@ -84,6 +86,11 @@ import AmountPicker from ''
                     @click="toggleFavorite(props.item)"
                     v-text="props.item.favored ? 'favorite' : 'favorite_border'"
                   />
+                </v-btn>
+                <v-btn icon @click="demoTransaction(props.item)">
+                  <v-icon>
+                    videogame_asset
+                  </v-icon>
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -290,7 +297,7 @@ import AmountPicker from ''
             openFundingDialog(protocol) {
                 this.fundingDialog = {
                     target: protocol, 
-                    amount: new BigNumber(10)
+                    amount: 10
                 }
             },
 
@@ -314,8 +321,36 @@ import AmountPicker from ''
                         this.submitting = false
                         alert(error)
                     })
-                
-                        
+            },
+
+            /** Open funding dialog */
+            startStatusChange(protocol) {
+                let newStatus = window.prompt("New status?", protocol.status)
+                if (newStatus) {
+                    let newStatusNum = Protocol.stateNumFromString(newStatus)
+                    this.safeAsyncContractCall(
+                        "Change protocol status " + protocol.id + " to " + newStatus + "/" + newStatusNum,
+                        (safeCallback) => {
+                            window.bc.contract().changeProtocolState(protocol.id, newStatusNum, safeCallback) 
+                        })
+                        .catch((error) => {
+                            alert(error)
+                        })
+                }
+            },
+
+            demoTransaction(protocol) {
+                let fee = window.prompt("Fee?", 10)
+                if (fee) {
+                    this.safeAsyncContractCall(
+                        "Demo " + fee,
+                        (safeCallback) => {
+                            window.bc.contract().payTransactionFee(protocol.id, {value: fee}, safeCallback) 
+                        })
+                        .catch((error) => {
+                            alert(error)
+                        })
+                }
             }
         }
     }

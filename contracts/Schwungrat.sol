@@ -31,6 +31,7 @@ contract Schwungrat {
         address manager;
         ProtocolState state;
         uint totalImplementationCost;
+        uint totalFundings;
         uint balance;
         uint remainingDebt;
         address[] debtors;
@@ -87,6 +88,7 @@ contract Schwungrat {
             description: _description,
             state: ProtocolState.Draft,
             totalImplementationCost: _totalCost,
+            totalFundings: 0,
             balance: 0,
             remainingDebt: 0,
             debtors: new address[](0)
@@ -116,6 +118,7 @@ contract Schwungrat {
         address manager,
         ProtocolState state,
         uint totalImplementationCost,
+        uint totalFundings,
         uint balance,
         uint debtorCount,
         // uint fundingsCount,
@@ -136,6 +139,7 @@ contract Schwungrat {
             p.manager,
             p.state,
             p.totalImplementationCost,
+            p.totalFundings,
             p.balance,
             p.debtors.length,
             // fundCount, // we cannot return the struct/array itself yet (https://stackoverflow.com/a/52327532/1633985) :(
@@ -181,7 +185,7 @@ contract Schwungrat {
         
         if(_newState == ProtocolState.Production){
             // Only protocols with funcing status can be published
-            require(protocol.state == ProtocolState.Funding);
+            // require(protocol.state == ProtocolState.Funding);
             protocol.state = ProtocolState.Production;
         }
 
@@ -200,6 +204,7 @@ contract Schwungrat {
         Protocol storage protocol = protocols[_protocolId];
         protocol.balance += msg.value;
         protocol.remainingDebt += msg.value;
+        protocol.totalFundings += msg.value;
 
         if (protocol.fundings[msg.sender] == 0) {
             protocol.debtors.push(msg.sender);

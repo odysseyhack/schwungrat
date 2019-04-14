@@ -140,6 +140,7 @@ export default {
          */
         safeAsyncContractCall(description, contractCaller, dataCallback) {
             return new Promise((resolve, reject) => {
+                console.debug("async contract call: [" + description + "]")
                 contractCaller((error, data) => {
                     if (error) {
                         reject("Failed [" + description + "]: " + error)

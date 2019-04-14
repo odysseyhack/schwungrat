@@ -7,7 +7,9 @@ export default class {
     status
     manager
     totalImplementationCost
+    totalFunding
     balance
+    debtorCount
     remainingDebt
 
     favored // loaded from LocalStorage
@@ -28,8 +30,10 @@ export default class {
         protocol.manager = arr[5]
         protocol.status = this.stateNumToString(arr[6].toNumber())
         protocol.totalImplementationCost = arr[7].toNumber()
-        protocol.balance = arr[8].toNumber()
-        protocol.remainingDebt = arr[9].toNumber()
+        protocol.totalFunding = arr[8].toNumber()
+        protocol.balance = arr[9].toNumber()
+        protocol.debtorCount = arr[10].toNumber()
+        protocol.remainingDebt = arr[11].toNumber()
         return protocol
     }
 
@@ -38,7 +42,7 @@ export default class {
     }
 
     static stateNumToString(num) {
-        return {
+        let str =  {
             0: 'Draft',
             1: 'TeamFormation',
             2: 'Funding',
@@ -46,5 +50,20 @@ export default class {
             4: 'Production',
             5: 'Commonized',
         }[num]
+        if (!str) throw "Not found: " + num
+        return str
+    }
+
+    static stateNumFromString(str) {
+        let num = {
+            'Draft': 0,
+            'TeamFormation': 1,
+            'Funding': 2,
+            'Implementation': 3,
+            'Production': 4,
+            'Commonized': 5,
+        }[str]
+        if (!num) throw "Not found: " + str
+        return num
     }
 }
