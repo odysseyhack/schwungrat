@@ -33,6 +33,9 @@ contract Schwungrat {
         uint totalImplementationCost;
         uint balance;
         uint remainingDebt;
+        address[] debtors;
+        mapping(address => uint) fundings;
+        mapping(address => uint) remainingDebts;
         // Funding[] fundings;
     }
     Protocol[] public protocols;
@@ -85,7 +88,8 @@ contract Schwungrat {
             state: ProtocolState.Draft,
             totalImplementationCost: _totalCost,
             balance: 0,
-            remainingDebt: 0
+            remainingDebt: 0,
+            debtors: new address[](0)
             // fundings: new Funding[](0)
         }));
         uint newProtocolId = protocols.length;
@@ -113,6 +117,7 @@ contract Schwungrat {
         ProtocolState state,
         uint totalImplementationCost,
         uint balance,
+        uint debtorCount,
         // uint fundingsCount,
         uint remainingDebt
     ) {
@@ -132,6 +137,7 @@ contract Schwungrat {
             p.state,
             p.totalImplementationCost,
             p.balance,
+            p.debtors.length,
             // fundCount, // we cannot return the struct/array itself yet (https://stackoverflow.com/a/52327532/1633985) :(
             p.remainingDebt
         );
@@ -195,10 +201,30 @@ contract Schwungrat {
         protocol.balance += msg.value;
         protocol.remainingDebt += msg.value;
 
+        if (protocol.fundings[msg.sender] == 0) {
+            protocol.debtors.push(msg.sender);
+        }
+
+        protocol.fundings[msg.sender] += msg.value;
+        protocol.remainingDebts[msg.sender] += msg.value;
+
+        // bool alreadyInDebtorList = false;
+        // uint debtorId;
+        // for (uint i=0; i<protocol.debtors.length; i++) {
+        //     if (protocol.debtors[i] == msg.sender) {
+        //         alreadyInDebtorList = true;
+        //         uint debtorId
+        //         break;
+        //     }
+        // }
+        // if (!alreadyInDebtorList) {
+        //     protocol.debtors.push(msg.sender);
+        // }
+
         // Funding memory funding = Funding(msg.sender, msg.value, 0);
         // uint newId = protocol.fundings.length;
         // protocol.fundings[newId] = funding;
-        // return newId;
+        // return protocol.debtors.length; // debtor ID
     }
 
     // /**
@@ -227,19 +253,47 @@ contract Schwungrat {
     function payTransactionFee(uint _id) public payable
     {
         Protocol storage protocol = protocols[_id];
-        protocol = protocols[_id];
         
         // Protocol needs to be Production or Commonized
-        require(protocol.state == ProtocolState.Production || protocol.state == ProtocolState.Commonized);
+        require(protocol.state == ProtocolState.Production/*  || protocol.state == ProtocolState.Commonized */);
         
-        protocol.balance += msg.value;
+        uint fee = msg.value;
+
+        if (protocol.remainingDebt > 0) {
+            // count debtors
+            uint debtorsRemaining = 0;
+            for (uint i=0; i<protocol.debtors.length; i++) {
+                if (protocol.remainingDebts[protocol.debtors[i]] > 0) {
+                    debtorsRemaining += 1;
+                }
+            }
+            // split fee
+            uint splitFee = fee / debtorsRemaining; // rounds down
+            require( // better check - don't overspend
+                debtorsRemaining * splitFee <= fee, 
+                "splitFee * debtors > fee"
+            );
+            // send debtors their share
+            for (uint i=0; i<protocol.debtors.length; i++) {
+                if (protocol.remainingDebts[protocol.debtors[i]] > 0) {
+                    if (protocol.remainingDebts[protocol.debtors[i]] > splitFee) {
+                        protocol.remainingDebts[protocol.debtors[i]] -= splitFee;
+                        protocol.remainingDebt -= splitFee;
+                        fee -= splitFee;
+                    } else {
+                        protocol.remainingDebt -= protocol.remainingDebts[protocol.debtors[i]];
+                        fee -= protocol.remainingDebts[protocol.debtors[i]];
+                        protocol.remainingDebts[protocol.debtors[i]] -= 0;
+                    }
+                }
+            }
+        }
+        require(fee >= 0, "fee < 0");
         
-        if (protocol.balance >= 0 && protocol.state == ProtocolState.Production) {
+        if (protocol.remainingDebt <= 0 && protocol.state == ProtocolState.Production) {
             protocol.state = ProtocolState.Commonized;
             emit ProtocolStateChanged(_id, ProtocolState.Production, protocol.state);
         }
-
-        //TODO: repay debts?
     }
 
 }
