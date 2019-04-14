@@ -37,54 +37,55 @@
       <!-- PROTOCOL CARD -->
       <template v-slot:item="props">
         <v-flex xs12 md6 lg4>
-          <v-card>
-            <v-card-title>
-              <h4>{{ props.item.name }}</h4>
-              <v-spacer />
-              <span class="font-weight-bold text-uppercase">{{ props.item.status }}</span>
-            </v-card-title>
-            <v-divider />
+          <v-hover>
+            <v-card
+              slot-scope="{ hover }"
+              :class="`elevation-${hover ? 12 : 2}`"
+            >
+              <v-card-title>
+                <h4>{{ props.item.name }}</h4>
+                <v-spacer />
+                <span class="font-weight-bold text-uppercase">{{ props.item.status }}</span>
+              </v-card-title>
+              <v-divider />
 
-            <v-list dense>
-              <v-list-tile>
-                <v-list-tile-content>Description:</v-list-tile-content>
-                <v-list-tile-content class="align-end">
+              <v-card-text class="pb-0">
+                <p>
                   {{ props.item.description }}
-                </v-list-tile-content>
-              </v-list-tile>
-              <v-list-tile>
-                <v-list-tile-content>Purpose:</v-list-tile-content>
-                <v-list-tile-content class="align-end" />
-              </v-list-tile>
-            </v-list>
+                </p>
+                <p v-if="props.item.purpose">
+                  <span class="subheading">Purpose</span><br>
+                  {{ props.item.purpose }}
+                </p>
 
-            <v-card-text class="pb-0">
-              <strong>Funding:</strong> Wei {{ props.item.balance }} / {{ props.item.totalImplementationCost }}
-            </v-card-text>
-            <v-progress-linear
-              color="info"
-              height="10"
-              :value="props.item.fundingProgress() * 100"
-              class="mb-0"
-            />
-            <v-divider />
+                <strong>Funding:</strong> Wei {{ props.item.balance }} / {{ props.item.totalImplementationCost }}
+              </v-card-text>
+              <v-progress-linear
+                color="info"
+                height="10"
+                :value="props.item.fundingProgress() * 100"
+                class="mb-0"
+              />
 
-            <v-card-actions>
-              <v-btn flat>
-                Details
-              </v-btn>
-              <v-btn flat @click="startFund(props.item)">
-                Fund
-              </v-btn>
-              <v-spacer />
-              <v-btn icon>
-                <v-icon
-                  @click="toggleFavorite(props.item)"
-                  v-text="props.item.favored ? 'favorite' : 'favorite_border'"
-                />
-              </v-btn>
-            </v-card-actions>
-          </v-card>
+              <v-card-actions>
+                <v-btn flat color="success" @click="startFund(props.item)">
+                  <v-icon>arrow_upward</v-icon>
+                  Fund
+                </v-btn>
+                <v-btn flat>
+                  Details
+                </v-btn>
+                <v-spacer />
+                <v-btn icon>
+                  <v-icon
+                    color="pink"
+                    @click="toggleFavorite(props.item)"
+                    v-text="props.item.favored ? 'favorite' : 'favorite_border'"
+                  />
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-hover>
         </v-flex>
       </template> <!-- // END PROTOCOL CARD -->
 
