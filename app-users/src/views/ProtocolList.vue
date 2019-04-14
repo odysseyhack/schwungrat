@@ -1,3 +1,5 @@
+import AmountPicker from ''
+
 <template>
   <div>
     <!-- Toolbar -->
@@ -68,7 +70,7 @@
               />
 
               <v-card-actions>
-                <v-btn flat color="success" @click="startFund(props.item)">
+                <v-btn flat color="success" @click="openFundingDialog(props.item)">
                   <v-icon>arrow_upward</v-icon>
                   Fund
                 </v-btn>
@@ -95,6 +97,61 @@
         </v-alert>
       </template>
     </v-data-iterator>
+
+    <v-dialog v-if="fundingDialog" v-model="fundingDialog" persistent max-width="600px">
+      <v-card class="pa-2">
+        <v-card-title>
+          <h6 class="title">
+            <strong>Fund protocol:</strong> {{ fundingDialog.target.name }}
+          </h6>
+        </v-card-title>
+        <v-card-text v-if="!submitting && !submitDone">
+          <v-layout row wrap>
+            <v-flex grow>
+              <v-slider
+                v-model="fundingDialog.amount"
+                label="Wei:"
+                thumb-color="green"
+                thumb-label="always"
+                max="100"
+              />
+            </v-flex>
+            <v-flex shrink ml-4>
+              <v-text-field
+                v-model="fundingDialog.amount"
+                class="mt-0"
+                type="number"
+                style="max-width:100px"
+              />
+            </v-flex>
+          </v-layout>
+        </v-card-text>
+        <v-card-text v-else-if="submitting && !submitDone">
+          Sending funds
+          <v-progress-linear
+            indeterminate
+            class="mb-0"
+          />
+        </v-card-text>
+        <v-card-text v-else>
+          <v-icon>check</v-icon> Sent successfully!
+        </v-card-text>
+        <v-card-actions v-if="!submitDone">
+          <v-btn color="primary" flat @click="fundingDialog = null">
+            Cancel
+          </v-btn>
+          <v-spacer />
+          <v-btn color="success" @click="performFunding()">
+            Perform funding
+          </v-btn>
+        </v-card-actions>
+        <v-card-actions v-else>
+          <v-btn @click="fundingDialog = null; submitDone = false;">
+            Dismiss
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -102,6 +159,7 @@
     // importing common function
     import mixin from '../mixins/mixinViews'
     import Protocol from '../models/Protocol'
+    import BigNumber from 'bignumber.js'
     import _ from 'lodash'
 
     /**
@@ -117,6 +175,8 @@
                 protocolCount: null, // null = not loaded
                 protocols: null, // null = not loaded
                 tmoConn: null, // contain the intervalID given by setInterval
+
+                fundingDialog: null,
             }
         }, // end methods
 
@@ -154,6 +214,7 @@
                     try {
                         this.protocolCount = await this.fetchProtocolCount()
                         this.protocols = await this.fetchProtocols()
+                        this.protocols = _.sortBy(this.protocols, [(p) => 1-p.fundingProgress()])
                     } catch(exc) {
                         console.error("Failed to fetch protocols:", exc)
                         alert("Failed to fetch protocols: " + exc)
@@ -225,18 +286,35 @@
                 this.$localStorage.set('favorites', JSON.stringify(favorites))
             },
 
+            /** Open funding dialog */
+            openFundingDialog(protocol) {
+                this.fundingDialog = {
+                    target: protocol, 
+                    amount: new BigNumber(10)
+                }
+            },
+
             /** Send fund of given amount to protocol. */
-            startFund(protocol) {
-                let amount = parseInt(window.prompt("Amount (Wei)", "1"))
+            performFunding() {
+                this.submitting = true
+                this.submitDone = false
+
                 this.safeAsyncContractCall(
-                    "Fund protocol " + protocol.id + " with " + amount,
+                    "Fund protocol " + this.fundingDialog.target.id + " with " + this.fundingDialog.amount,
                     (safeCallback) => {
-                        window.bc.contract().fundProtocol(protocol.id, {value: amount}, safeCallback) 
+                        window.bc.contract().fundProtocol(this.fundingDialog.target.id, {value: this.fundingDialog.amount}, safeCallback) 
                     })
                     .then((data) => {
                         console.log("Fund response:", data)
+                        this.submitting = false
+                        this.submitDone = true
                         this.reloadList()
                     })
+                    .catch((error) => {
+                        this.submitting = false
+                        alert(error)
+                    })
+                
                         
             }
         }

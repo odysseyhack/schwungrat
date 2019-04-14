@@ -82,11 +82,25 @@
         Implementation cost
       </v-stepper-step>
       <v-stepper-content step="4">
-        <v-text-field
-          v-model="protocol.totalImplementationCost"
-          label="Implementation Cost"
-          prefix="Wei"
-        />
+        <v-layout row wrap ma-4>
+          <v-flex grow>
+            <v-slider
+              v-model="protocol.totalImplementationCost"
+              label="Wei:"
+              thumb-color="green"
+              thumb-label="always"
+              max="1000"
+            />
+          </v-flex>
+          <v-flex shrink ml-4>
+            <v-text-field
+              v-model="protocol.totalImplementationCost"
+              class="mt-0"
+              type="number"
+              style="max-width:100px"
+            />
+          </v-flex>
+        </v-layout>
         <v-btn :disabled="!minimalRequirementsMet" color="primary" @click="performSubmit()">
           Submit Protocol
         </v-btn>
@@ -113,11 +127,12 @@
     <v-dialog
       :value="submitting || submitDone"
       persistent
-      width="300"
+      width="350"
     >
       <v-card
         :color="submitDone ? 'green' : 'primary'"
         dark
+        class="pa-2"
       >
         <v-card-text v-if="!submitDone">
           Saving protocol to Blockchain
@@ -151,9 +166,7 @@
         data() {
             return {
                 progress: 1,
-                protocol: new Protocol,
-                submitting: false, // true once the submit button is pressed
-                submitDone: false, // true when the submit process completed
+                protocol: Protocol.newProtocol(),
 
                 tmoConn: null, // contain the intervalID given by setInterval
                 tmoReg: null, // contain the intervalID given by setInterval
@@ -194,7 +207,6 @@
                     return
                 }
                 this.submitting = true
-                this.errorStr = null
                 this.submitDone = false
 
                 try {

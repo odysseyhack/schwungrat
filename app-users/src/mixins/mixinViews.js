@@ -7,7 +7,9 @@ export default {
             bcConnected: false, // true when the connection with the blockchain is established, plus the contract ABI + address is correctli initialized
             bcConnectionError: false,
             errorConnectionMessage: null,
-            bcSmartContractAddressError: false
+            bcSmartContractAddressError: false,
+            submitting: false, // true once the submit button is pressed
+            submitDone: false, // true when the submit process completed
         }
     },
 

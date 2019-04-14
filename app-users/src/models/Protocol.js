@@ -12,6 +12,12 @@ export default class {
 
     favored // loaded from LocalStorage
 
+    static newProtocol() {
+        let protocol = new this()
+        protocol.totalImplementationCost = 0
+        return protocol
+    }
+
     static fromContractReturn(arr) {
         let protocol = new this()
         protocol.id = arr[0].toNumber()
