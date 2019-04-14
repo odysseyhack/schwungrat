@@ -17,6 +17,10 @@
       <v-icon>list</v-icon>
       Proposed protocols
     </v-btn>
+    <v-btn flat href="http://disruptive-elements.com/fileserver/odyssey-2019/" target="_self">
+      <v-icon>dashboard</v-icon>
+      Dashboard
+    </v-btn>
 
     <!-- <v-spacer /> -->
 
