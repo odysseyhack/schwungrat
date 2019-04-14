@@ -132,7 +132,8 @@ export default {
          * Wrapper function to asynchronously call a contract method.
          * @param {string} description For logging
          * @param {contractCaller} contractCaller For passing it to web3 as (error, data) callback
-         * @param {dataCallback} dataCallback Will be called with the actual response. Should return result or throw exception.
+         * @param {dataCallback} dataCallback Will be called with the actual response.
+         *        Should return result or throw exception. (if omitted, Promise will just return data)
          * @returns {Promise}
          */
         safeAsyncContractCall(description, contractCaller, dataCallback) {
@@ -142,7 +143,11 @@ export default {
                         reject("Failed [" + description + "]: " + error)
                     } else {
                         try {
-                            resolve(dataCallback(data))
+                            if (dataCallback) {
+                                resolve(dataCallback(data))
+                            } else {
+                                resolve(data)
+                            }
                         } catch(exc) {
                             reject("Failed [" + description + "]: " + exc)
                         }

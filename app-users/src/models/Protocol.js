@@ -1,5 +1,3 @@
-import _ from 'lodash'
-
 export default class {
     id
     created
@@ -9,10 +7,10 @@ export default class {
     status
     manager
     totalImplementationCost
-    additionalFees
+    balance
+    remainingDebt
 
     favored // loaded from LocalStorage
-
 
     static fromContractReturn(arr) {
         let protocol = new this()
@@ -24,18 +22,23 @@ export default class {
         protocol.manager = arr[5]
         protocol.status = this.stateNumToString(arr[6].toNumber())
         protocol.totalImplementationCost = arr[7].toNumber()
-        protocol.additionalFees = arr[8].toNumber()
+        protocol.balance = arr[8].toNumber()
+        protocol.remainingDebt = arr[9].toNumber()
         return protocol
     }
 
+    fundingProgress() {
+        return (this.balance / this.totalImplementationCost)
+    }
+
     static stateNumToString(num) {
-        return _.findKey({
-            'Draft': 0,
-            'TeamFormation': 1,
-            'Funding': 2,
-            'Implementation': 3,
-            'Production': 4,
-            'Commonized': 5,
-        }, num)
+        return {
+            0: 'Draft',
+            1: 'TeamFormation',
+            2: 'Funding',
+            3: 'Implementation',
+            4: 'Production',
+            5: 'Commonized',
+        }[num]
     }
 }

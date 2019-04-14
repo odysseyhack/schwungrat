@@ -5,7 +5,7 @@
       <!-- layout and flex elements move the reload button to the right -->
       <v-flex>
         <h1 class="display-2">
-          Proposed procotols
+          Proposed protocols
         </h1>
       </v-flex>
       <v-flex class="text-xs-right">
@@ -41,7 +41,7 @@
             <v-card-title>
               <h4>{{ props.item.name }}</h4>
               <v-spacer />
-              <span class="font-weight-bold">{{ props.item.status }}</span>
+              <span class="font-weight-bold text-uppercase">{{ props.item.status }}</span>
             </v-card-title>
             <v-divider />
 
@@ -57,11 +57,24 @@
                 <v-list-tile-content class="align-end" />
               </v-list-tile>
             </v-list>
+
+            <v-card-text class="pb-0">
+              <strong>Funding:</strong> Wei {{ props.item.balance }} / {{ props.item.totalImplementationCost }}
+            </v-card-text>
+            <v-progress-linear
+              color="info"
+              height="10"
+              :value="props.item.fundingProgress() * 100"
+              class="mb-0"
+            />
             <v-divider />
 
             <v-card-actions>
               <v-btn flat>
                 Details
+              </v-btn>
+              <v-btn flat @click="startFund(props.item)">
+                Fund
               </v-btn>
               <v-spacer />
               <v-btn icon>
@@ -209,6 +222,21 @@
                     protocol.favored = true
                 }
                 this.$localStorage.set('favorites', JSON.stringify(favorites))
+            },
+
+            /** Send fund of given amount to protocol. */
+            startFund(protocol) {
+                let amount = parseInt(window.prompt("Amount (Wei)", "1"))
+                this.safeAsyncContractCall(
+                    "Fund protocol " + protocol.id + " with " + amount,
+                    (safeCallback) => {
+                        window.bc.contract().fundProtocol(protocol.id, {value: amount}, safeCallback) 
+                    })
+                    .then((data) => {
+                        console.log("Fund response:", data)
+                        this.reloadList()
+                    })
+                        
             }
         }
     }

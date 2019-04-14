@@ -6,13 +6,20 @@ contract Schwungrat {
      * The following states (see finite state machine) represent
      * all different phases of a protocol.
      **/
-    enum ProtocolStates {
+    enum ProtocolState {
         Draft,
         TeamFormation,
         Funding,
         Implementation,
         Production,
         Commonized
+    }
+
+    // Funding structure
+    struct Funding {
+        address issuer;
+        uint amount;
+        uint repayed;
     }
 
     // data structure that stores a protocol
@@ -22,11 +29,15 @@ contract Schwungrat {
         uint createdAt;
         uint updatedAt;
         address manager;
-        ProtocolStates state;
+        ProtocolState state;
         uint totalImplementationCost;
-        uint addionalFees;
+        uint balance;
+        uint remainingDebt;
+        // Funding[] fundings;
     }
     Protocol[] public protocols;
+    event NewProtocolRegistered(uint id);
+    event ProtocolStateChanged(uint id, ProtocolState oldState, ProtocolState newState);
     
     /**
      * Constructor function
@@ -45,6 +56,7 @@ contract Schwungrat {
      *
      * @param _protocolName        The protocol name
      * @param _protocolDescription        The protocol description
+     * @param _totalCost     Total Cost to implement the protocol
      */
     function createProtocolProposal(string memory _protocolName, string memory _protocolDescription, uint _totalCost) public
     returns(uint)
@@ -56,28 +68,31 @@ contract Schwungrat {
      * Internal Function to add protocol
      *
      * @param _wAddr         Address wallet of the iniator
-     * @param _protcolName   Displaying name of the protocol
+     * @param _protocolName   Displaying name of the protocol
      * @param _description   Description of the protocol
      * @param _totalCost     Total Cost to implement the protocol
      */
-    function addProtocol(address _wAddr, string memory _protcolName, string memory _description, uint _totalCost) private
+    function addProtocol(address _wAddr, string memory _protocolName, string memory _description, uint _totalCost) private
     returns(uint)
     {
-        uint newProtocolId = protocols.length++;
         // storing the new user details
-        protocols[newProtocolId] = Protocol({
-            name: _protcolName,
+        protocols.push(Protocol({
+            name: _protocolName,
             createdAt: now,
             updatedAt: now,
             manager: _wAddr,
             description: _description,
-            state: ProtocolStates.Draft,
+            state: ProtocolState.Draft,
             totalImplementationCost: _totalCost,
-            addionalFees: 0
-        });
+            balance: 0,
+            remainingDebt: 0
+            // fundings: new Funding[](0)
+        }));
+        uint newProtocolId = protocols.length;
+        // protocols[newProtocolId].fundings.push(Funding(msg.sender, msg.value, 0));
 
         // emitting the event that a new user has been registered
-        //emit newUserRegistered(newUserId);
+        emit NewProtocolRegistered(newProtocolId);
 
         return newProtocolId;
     }
@@ -89,28 +104,36 @@ contract Schwungrat {
      */
     function getProtocolById(uint _id) public view
     returns(
-        uint,
-        string memory,
-        string memory,
-        uint,
-        uint,
-        address,
-        ProtocolStates,
-        uint,
-        uint
+        uint id,
+        string memory name,
+        string memory description,
+        uint created,
+        uint updated,
+        address manager,
+        ProtocolState state,
+        uint totalImplementationCost,
+        uint balance,
+        // uint fundingsCount,
+        uint remainingDebt
     ) {
-        Protocol memory i = protocols[_id];
+        Protocol memory p = protocols[_id];
+        // uint fundCount = p.fundings.length;
+        // for (uint i=0; i < fundCount; i++) {
+        //     debt += (p.fundings[i].amount - p.fundings[i].repayed);
+        // }
 
         return (
             _id,
-            i.name,
-            i.description,
-            i.createdAt,
-            i.updatedAt,
-            i.manager,
-            i.state,
-            i.totalImplementationCost,
-            i.addionalFees
+            p.name,
+            p.description,
+            p.createdAt,
+            p.updatedAt,
+            p.manager,
+            p.state,
+            p.totalImplementationCost,
+            p.balance,
+            // fundCount, // we cannot return the struct/array itself yet (https://stackoverflow.com/a/52327532/1633985) :(
+            p.remainingDebt
         );
     }
     
@@ -121,7 +144,7 @@ contract Schwungrat {
     {
         // NOTE: the total registered user is length-1 because the user with
         // index 0 is empty check the contructor: addUser(address(0x0), "", "");
-        return protocols.length-1;
+        return protocols.length - 1;
     }
 
     /**
@@ -129,63 +152,94 @@ contract Schwungrat {
      * @param _id           The ID of the protocol stored on the blockchain.
      * @param _newState     The desired state that protocol should transits to
      */
-    function changeProtocolState(uint _id, ProtocolStates _newState) public 
+    function changeProtocolState(uint _id, ProtocolState _newState) public 
     {
         Protocol storage protocol = protocols[_id];
-        protocol = protocols[_id];
+        protocol = protocols[_id]; //TODO: why set the value twice?
         
         // Only the manager of the protocol can publish it for funding
         require(msg.sender == protocol.manager);
+        ProtocolState oldState = protocol.state;
         
-        if(_newState == ProtocolStates.TeamFormation){
+        if(_newState == ProtocolState.TeamFormation){
             // Only protocols with draft status can be published
-            require(protocol.state == ProtocolStates.Draft);
-            protocol.state = ProtocolStates.TeamFormation;
+            require(protocol.state == ProtocolState.Draft);
+            protocol.state = ProtocolState.TeamFormation;
         }
         
-        if(_newState == ProtocolStates.Funding){
+        if(_newState == ProtocolState.Funding){
             // Only protocols with draft status can be published
-            require(protocol.state == ProtocolStates.TeamFormation);
-            protocol.state = ProtocolStates.Funding;
+            require(protocol.state == ProtocolState.TeamFormation);
+            protocol.state = ProtocolState.Funding;
         }
         
-        if(_newState == ProtocolStates.Production){
+        if(_newState == ProtocolState.Production){
             // Only protocols with funcing status can be published
-            require(protocol.state == ProtocolStates.Funding);
-            protocol.state = ProtocolStates.Production;
+            require(protocol.state == ProtocolState.Funding);
+            protocol.state = ProtocolState.Production;
         }
 
+        if (protocol.state != oldState) {
+            emit ProtocolStateChanged(_id, oldState, protocol.state);
+        }
     }
+
+    /**
+     * Add a funding. (sender = issuer)
+     * @param _protocolId The ID of the protocol stored on the blockchain.
+     */
+    function fundProtocol(uint _protocolId) public payable
+    // returns (uint)
+    {
+        Protocol storage protocol = protocols[_protocolId];
+        protocol.balance += msg.value;
+        protocol.remainingDebt += msg.value;
+
+        // Funding memory funding = Funding(msg.sender, msg.value, 0);
+        // uint newId = protocol.fundings.length;
+        // protocol.fundings[newId] = funding;
+        // return newId;
+    }
+
+    // /**
+    //  * Get a funding.
+    //  * @param _protocolId The ID of the protocol
+    //  * @param _fundingId  The ID of the funding inside the protocol's scope
+    //  */
+    // function getProtocolFundingById(uint _protocolId, uint _fundingId) public view
+    // returns (
+    //     address issuer,
+    //     uint amount,
+    //     uint repayed
+    // ) {
+    //     Protocol memory protocol = protocols[_protocolId];
+    //     return (
+    //         protocol.fundings[_fundingId].issuer,
+    //         protocol.fundings[_fundingId].amount,
+    //         protocol.fundings[_fundingId].repayed
+    //     );
+    // }
     
     /**
      * Implemented Protocol pays transaction fee back
      * @param _id           The ID of the protocol stored on the blockchain.
-     * @param _fee          The transaction fee
      */
-    function payTransactionFee(uint _id, uint _fee) public 
+    function payTransactionFee(uint _id) public payable
     {
         Protocol storage protocol = protocols[_id];
         protocol = protocols[_id];
         
         // Protocol needs to be Production or Commonized
-        require(protocol.state == ProtocolStates.Production || protocol.state == ProtocolStates.Commonized);
+        require(protocol.state == ProtocolState.Production || protocol.state == ProtocolState.Commonized);
         
-        uint newCost = protocol.totalImplementationCost - _fee;
+        protocol.balance += msg.value;
         
-        if(newCost > 0){
-            protocol.totalImplementationCost = newCost;
+        if (protocol.balance >= 0 && protocol.state == ProtocolState.Production) {
+            protocol.state = ProtocolState.Commonized;
+            emit ProtocolStateChanged(_id, ProtocolState.Production, protocol.state);
         }
-        
-        if(newCost <= 0 && protocol.state == ProtocolStates.Production) {
-            protocol.totalImplementationCost = 0;
-            protocol.state = ProtocolStates.Commonized;
-        }
-        
-        if(protocol.state == ProtocolStates.Commonized) {
-            protocol.totalImplementationCost = 0;
-            protocol.addionalFees = protocol.addionalFees + _fee;
-        }
-        
+
+        //TODO: repay debts?
     }
 
 }

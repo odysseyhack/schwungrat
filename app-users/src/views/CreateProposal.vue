@@ -85,7 +85,7 @@
         <v-text-field
           v-model="protocol.totalImplementationCost"
           label="Implementation Cost"
-          prefix="ETH"
+          prefix="Wei"
         />
         <v-btn :disabled="!minimalRequirementsMet" color="primary" @click="performSubmit()">
           Submit Protocol
