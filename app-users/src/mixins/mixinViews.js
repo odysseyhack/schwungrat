@@ -1,4 +1,4 @@
-import BcExplorer from './BcExplorer'
+import BcExplorer from '../libs/BcExplorer'
 import SchwungratContract from '../assets/contracts/Schwungrat.json'
 
 export default {
@@ -106,6 +106,51 @@ export default {
             return this.bcConnected
         },
 
+        // Callback definitions for safeAsyncContractCall
+        /**
+         * Passed to web3.eth.Contract's method call.
+         *
+         * @callback safeCallback
+         * @param error
+         * @param data
+         */
+        /**
+         * Will be called synchronously to kick off the contract call using the safeCallback.
+         *
+         * @callback contractCaller
+         * @param {safeCallback} safeCallback
+         */
+        /**
+         * Will be called with the actual response. Should return result or throw exception.
+         *
+         * @callback dataCallback
+         * @param {data} data The actual data returned by the contract call
+         * @returns final result
+         * @throws Any exception - will be used to reject the final promise
+         */
+        /**
+         * Wrapper function to asynchronously call a contract method.
+         * @param {string} description For logging
+         * @param {contractCaller} contractCaller For passing it to web3 as (error, data) callback
+         * @param {dataCallback} dataCallback Will be called with the actual response. Should return result or throw exception.
+         * @returns {Promise}
+         */
+        safeAsyncContractCall(description, contractCaller, dataCallback) {
+            return new Promise((resolve, reject) => {
+                contractCaller((error, data) => {
+                    if (error) {
+                        reject("Failed [" + description + "]: " + error)
+                    } else {
+                        try {
+                            resolve(dataCallback(data))
+                        } catch(exc) {
+                            reject("Failed [" + description + "]: " + exc)
+                        }
+                    }
+                })
+            })
+        },
+
         /**
          * Transform the parameter from bytes to string.
          *
@@ -123,7 +168,7 @@ export default {
          * @return {string}
          */
         toDate(timestamp) {
-            return new Date(timestamp * 1000).toISOString()
+            return new Date(timestamp * 1000)
         }
     }
 }

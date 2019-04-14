@@ -3,7 +3,7 @@
     <TopMenu />
 
     <v-content>
-      <v-container fluid>
+      <v-container fluid grid-list-lg>
         <v-alert :value="!bcConnected && !bcConnectionError" type="info">
           Connecting to Blockchain...
           <v-btn small flat dark onclick="window.location.reload(false)">Stuck? Click to reload</v-btn>
@@ -25,7 +25,7 @@
           <p>Other common causes of error:</p>
           <ul>
             <li>The blockchain is running.</li>
-            <li>The port in your settings (file: <b>libs/mixinViews.js</b>) match with the blockchain configuration.</li>
+            <li>The port in your settings (file: <b>mixins/mixinViews.js</b>) match with the blockchain configuration.</li>
             <li>The compiled smart contract(s) <b>app-users/src/assets/contracts/*.json</b> is not up to date with <b>build/*.json</b>.</li>
           </ul>
 
@@ -45,7 +45,7 @@
 
 <script>
 // importing common function
-    import mixin from './libs/mixinViews'
+    import mixin from './mixins/mixinViews'
     import TopMenu from './components/TopMenu'
 
     export default {

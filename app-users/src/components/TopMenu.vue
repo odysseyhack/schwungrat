@@ -2,21 +2,23 @@
   <!-- <v-navigation-drawer app /> -->
   <v-toolbar app>
     <!-- <v-toolbar-side-icon /> -->
-    <v-icon>device_hub</v-icon>
-    <v-toolbar-title>Schwungrat</v-toolbar-title>
+    <img id="logo" src="/static/logo.png">
+    <v-toolbar-title>
+      Schwungrat
+    </v-toolbar-title>
 
     <v-spacer />
 
-    <v-btn flat to="/create">
+    <!-- <v-btn flat to="/create">
       <v-icon>add</v-icon>
       Create
-    </v-btn>
+    </v-btn> -->
     <v-btn flat to="/">
       <v-icon>list</v-icon>
       Proposed protocols
     </v-btn>
 
-    <v-spacer />
+    <!-- <v-spacer /> -->
 
     <v-btn icon to="/account">
       <v-icon>account_circle</v-icon>
@@ -77,7 +79,7 @@
 
 <script>
     // importing common function
-    import mixin from '../libs/mixinViews'
+    import mixin from '../mixins/mixinViews'
 
     export default {
         mixins: [mixin],
@@ -156,4 +158,7 @@
 </script>
 
 <style>
+#logo {
+  height: 3em;
+}
 </style>

@@ -63,7 +63,7 @@
 
 <script>
     // importing common function
-    import mixin from '../libs/mixinViews'
+    import mixin from '../mixins/mixinViews'
 
     export default {
         mixins: [mixin],
@@ -115,22 +115,6 @@
 
                 window.bc.getMainAccount()
                     .then(address => this.performUserRegistration(address))
-            },
-
-            /**
-             * Show the form error.
-             *
-             * @param {object} err
-             * @return {void}
-             */
-            showErrorMessage(err) {
-                console.error(err)
-
-                this.errorStr = null
-
-                if (err) this.errorStr = err.toString()
-
-                if (! this.errorStr) this.errorStr = 'Error occurred!'
             },
 
             /**
@@ -216,7 +200,7 @@
                                     this.$router.push("profile")
                                 }
                             })
-                            .catch(error => this.showErrorMessage(error))
+                            .catch(error => this.showError(error))
                     }
                 }, 1000)
             }

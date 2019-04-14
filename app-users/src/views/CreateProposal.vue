@@ -10,7 +10,7 @@
     </p>
 
     <v-stepper v-model="progress" vertical>
-      <v-stepper-step :complete="Boolean(protocol.name) && Boolean(protocol.description)" step="1" editable>
+      <v-stepper-step :rules="[() => progress == 1 || minimalRequirementsMet]" :complete="minimalRequirementsMet" step="1" editable>
         Basic Info 
         <small>Name*, Short description*</small>
       </v-stepper-step>
@@ -29,26 +29,30 @@
         <v-btn color="primary" @click="progress = 2">
           Continue
         </v-btn>
-        <v-btn flat>
-          Cancel
+        <v-btn depressed
+               :disabled="!minimalRequirementsMet"
+               @click="performSubmit()"
+        >
+          <v-icon>check</v-icon>
+          Submit minimal draft
         </v-btn>
       </v-stepper-content>
 
       <v-stepper-step :complete="progress > 2" step="2" editable>
-        Massive Transformative Purpose (MTP)* 
+        Massive Transformational Purpose (MTP)* 
       </v-stepper-step>
 
       <v-stepper-content step="2">
         <v-textarea
-          v-model="protocol.description"
-          label="Description"
+          v-model="protocol.mtp"
+          label="Massive Transformational Purpose"
           box
         />        
         <v-btn color="primary" @click="progress = 3">
           Continue
         </v-btn>
-        <v-btn flat>
-          Cancel
+        <v-btn flat @click="progress -= 1">
+          Back
         </v-btn>
       </v-stepper-content>
 
@@ -69,24 +73,29 @@
         <v-btn color="primary" @click="progress = 4">
           Continue
         </v-btn>
-        <v-btn flat>
-          Cancel
+        <v-btn flat @click="progress -= 1">
+          Back
         </v-btn>
       </v-stepper-content>
 
-      <v-stepper-step step="4">
-        View setup instructions
+      <v-stepper-step step="4" editable>
+        Implementation cost
       </v-stepper-step>
       <v-stepper-content step="4">
-        <v-card color="grey lighten-1" class="mb-5" height="200px" />
-        <v-btn color="primary" @click="progress = 1">
-          Continue
+        <v-text-field
+          v-model="protocol.totalImplementationCost"
+          label="Implementation Cost"
+          prefix="ETH"
+        />
+        <v-btn :disabled="!minimalRequirementsMet" color="primary" @click="performSubmit()">
+          Submit Protocol
         </v-btn>
-        <v-btn flat>
-          Cancel
+        <v-btn flat @click="progress -= 1">
+          Back
         </v-btn>
       </v-stepper-content>
     </v-stepper>
+    <!-- // END STEPPER -->
 
     <!-- Save button -->
     <v-fab-transition>
@@ -133,7 +142,7 @@
 
 <script>
     // importing common function
-    import mixin from '../libs/mixinViews'
+    import mixin from '../mixins/mixinViews'
     import Protocol from '../models/Protocol'
 
     export default {
@@ -153,6 +162,10 @@
         },
 
         computed: {
+            minimalRequirementsMet() {
+                return Boolean(this.protocol.name) && Boolean(this.protocol.description)
+            },
+
             /**
              * It disables the submit button when the the name or userStatus are not filled
              * or the submit button is pressed or the connection with the blockchain is
@@ -161,8 +174,7 @@
             submitAvailable() {
                 return (
                     this.progress > 1 &&
-                    // !this.protocol.checkRequiredFields() &&
-                    Boolean(this.protocol.name) && Boolean(this.protocol.description) &&
+                    this.minimalRequirementsMet &&
                     !this.submitting &&
                     this.blockchainIsConnected()
                 )
@@ -185,35 +197,25 @@
                 this.errorStr = null
                 this.submitDone = false
 
-                window.bc.contract().createProtocolProposal(
-                    this.protocol.name,
-                    this.protocol.description,
-                    (error, newId) => {
-                        if (error) {
-                            alert("Failed to create protocol: " + error)
-                            this.submitting = false
-                        } else {
-                            this.submitting = false
-                            this.submitDone = true
-                            console.log("Created: " + newId)
-                        }
-                    })
-            },
-
-            /**
-             * Show the form error.
-             *
-             * @param {object} err
-             * @return {void}
-             */
-            showErrorMessage(err) {
-                console.error(err)
-
-                this.errorStr = null
-
-                if (err) this.errorStr = err.toString()
-
-                if (! this.errorStr) this.errorStr = 'Error occurred!'
+                try {
+                    window.bc.contract().createProtocolProposal(
+                        this.protocol.name,
+                        this.protocol.description,
+                        this.protocol.totalImplementationCost,
+                        (error, newId) => {
+                            if (error) {
+                                alert("Failed to create protocol: " + error)
+                                this.submitting = false
+                            } else {
+                                this.submitting = false
+                                this.submitDone = true
+                                console.log("Created: " + newId)
+                            }
+                        })
+                } catch(exc) {
+                    this.submitting = false
+                    this.showError("Failed to create proposal", exc)
+                }
             },
 
             /**
@@ -264,7 +266,7 @@
                                     this.$router.push("profile")
                                 }
                             })
-                            .catch(error => this.showErrorMessage(error))
+                            .catch(error => this.showError(error))
                     }
                 }, 1000)
             }

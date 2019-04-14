@@ -39,8 +39,8 @@
           <td>{{ user[1] }}</td>
           <td>{{ toAscii(user[2]) }}</td>
           <td>{{ user[3] }}</td>
-          <td>{{ toDate( user[4].toNumber() ) }}</td>
-          <td>{{ toDate( user[5].toNumber() ) }}</td>
+          <td>{{ toDate( user[4].toNumber() ).toISOString() }}</td>
+          <td>{{ toDate( user[5].toNumber() ).toISOString() }}</td>
         </tr>
       </tbody>
     </table>
@@ -49,7 +49,7 @@
 
 <script>
     // importing common function
-    import mixin from '../libs/mixinViews'
+    import mixin from '../mixins/mixinViews'
 
     /**
      * List view component: this component shows list of the registered users

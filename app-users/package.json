@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "lodash": "^4.17.11",
     "material-design-icons-iconfont": "^4.0.5",
     "vue": "^2.5.2",
+    "vue-async-methods": "^0.9.1",
+    "vue-localstorage": "^0.6.2",
     "vue-router": "^3.0.1",
     "vuetify": "^1.5.11",
     "web3": "^0.20.6"

@@ -75,7 +75,7 @@
 
 <script>
     // importing common function
-    import mixin from '../libs/mixinViews'
+    import mixin from '../mixins/mixinViews'
 
 
     /**

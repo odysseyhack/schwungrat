@@ -37,14 +37,14 @@ contract Schwungrat {
         // of the protocolIds mapping that does not exist (like protocolIds[0x12345]) you will
         // receive 0, that's why in the first position (with index 0) must be initialized
         addProtocol(address(0x0), "", "", 0);
-        addProtocol(address(0x263ad5218f4F3b14219F4daF10D44ac5c53691d7), "Test Protocol for User1", "Description", 5);
+        addProtocol(address(0x263ad5218f4F3b14219F4daF10D44ac5c53691d7), "Example Protocol", "Some example protocol for testing", 5);
     }
     
     /**
      * Function to create a new protocol proposal.
      *
      * @param _protocolName        The protocol name
-     * * @param _protocolDescription        The protocol description
+     * @param _protocolDescription        The protocol description
      */
     function createProtocolProposal(string memory _protocolName, string memory _protocolDescription, uint _totalCost) public
     returns(uint)
@@ -91,6 +91,7 @@ contract Schwungrat {
     returns(
         uint,
         string memory,
+        string memory,
         uint,
         uint,
         address,
@@ -103,6 +104,7 @@ contract Schwungrat {
         return (
             _id,
             i.name,
+            i.description,
             i.createdAt,
             i.updatedAt,
             i.manager,
@@ -174,12 +176,12 @@ contract Schwungrat {
             protocol.totalImplementationCost = newCost;
         }
         
-        if(newCost <= 0 && protocol.state == ProtocolStates.Production){
+        if(newCost <= 0 && protocol.state == ProtocolStates.Production) {
             protocol.totalImplementationCost = 0;
             protocol.state = ProtocolStates.Commonized;
         }
         
-        if(protocol.state == ProtocolStates.Commonized){
+        if(protocol.state == ProtocolStates.Commonized) {
             protocol.totalImplementationCost = 0;
             protocol.addionalFees = protocol.addionalFees + _fee;
         }
